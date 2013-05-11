@@ -1,4 +1,4 @@
-material box
+material tile
 {
     technique
     {
@@ -13,14 +13,14 @@ material box
             u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
             u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
             u_cameraPosition = CAMERA_WORLD_POSITION
-            u_ambientColor = 0.2, 0.2, 0.2
+            u_ambientColor = 1.0, 1.0, 1.0
             u_lightColor = 0.75, 0.75, 0.75
             u_specularExponent = 50
             
             // samplers
             sampler u_diffuseTexture
             {
-                path = res/box-diffuse.png
+                path = res/tile.png
                 mipmap = true
                 wrapS = CLAMP
                 wrapT = CLAMP
@@ -31,7 +31,7 @@ material box
             // render state
             renderState
             {
-                cullFace = true
+                //cullFace = true
                 depthTest = true
             }
         }
