@@ -7,6 +7,12 @@ local game
 
 local scene
 
+local touches =
+{
+    { time=0, down=false, x=0, y=0, dx=0, dy=0, card=nil },
+    { time=0, down=false, x=0, y=0, dx=0, dy=0, card=nil }
+}
+
 local memory =
 {
     difficulty = 'normal',
@@ -31,34 +37,66 @@ local cards = {}
 -- Avoid allocating new objects every frame.
 local textColor = Vector4.new(0, 0.5, 1, 1)
 
-function flippingEnter(agent, state)
+function enter_card_idle(agent, state)
+end
+
+function exit_card_idle(agent, state)
+end
+
+function enter_card_touched(agent, state)
     local card = agent:getNode()
-    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 250, 500 }, { 1,1,1, 1.5,1.5,1.5, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
+    local sx, sy = card:getScaleX(), card:getScaleY()
+    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 250 }, { sx,sy,1, 1.5,1.5,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
-function flippingExit(agent, state)
+function exit_card_touched(agent, state)
+    local card = agent:getNode()
+    local sx, sy = card:getScaleX(), card:getScaleY()
+    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 250 }, { sx,sy,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
-function cardIdleEnter(agent, state)
+function enter_card_flipped(agent, state)
 end
 
-function cardIdleExit(agent, state)
+function exit_card_flipped(agent, state)
 end
 
-local function getCardAt(x, y)
-    x, y = x - (tableau.ox - tableau.sx/2), y - (tableau.oy - tableau.sy/2)
-    local r, c = 1 + math.floor(y/tableau.sy), 1 + math.floor(x/tableau.sx)
-    if 1 <= r and r <= tableau.h and 1 <= c and c <= tableau.w then
-        return tableau.cards[r][c]
+-- Returns the nearest card and its distance
+local function getNearestCard(x, y)
+    local nearest, dsq = nil, math.huge
+    for _, card in ipairs(cards) do
+        local dx, dy = card:getTranslationX() - x, card:getTranslationY() - y
+        local d =  dx*dx + dy*dy
+        if d < dsq then
+            nearest, dsq = card, d
+        end
+    end
+    if nearest then
+        return nearest, math.sqrt(dsq)
+    end
+end
+
+-- Returns the nearest card if it is within the specified distance
+local function getCardAt(x, y, dist)
+    local card, d = getNearestCard(x, y)
+    if card and d <= dist then
+        return card
     end
 end
 
 local function newCardAgent()
     local agent = AIAgent.create()
     local stateMachine = agent:getStateMachine()
-    local state = stateMachine:addState('flipping')
-    state:addScriptCallback('enter', 'flippingEnter')
-    state:addScriptCallback('exit', 'flippingExit')
+    local state
+    state = stateMachine:addState('idle')
+    state:addScriptCallback('enter', 'enter_card_idle')
+    state:addScriptCallback('exit', 'exit_card_idle')
+    state = stateMachine:addState('touched')
+    state:addScriptCallback('enter', 'enter_card_touched')
+    state:addScriptCallback('exit', 'exit_card_touched')
+    state = stateMachine:addState('flipped')
+    state:addScriptCallback('enter', 'enter_card_flipped')
+    state:addScriptCallback('exit', 'exit_card_flipped')
     return agent
 end
 
@@ -75,6 +113,7 @@ local function newCard()
     card:getModel():setMaterial('res/card.material')
 
     card:setAgent(newCardAgent())
+    card:getAgent():getStateMachine():setState('idle')
     
     return card
 end
@@ -151,39 +190,61 @@ function _controlEvent2(control, event)
     end
 end
 
-function keyEvent(evt, key)
-    if evt == Keyboard.KEY_PRESS then
+function keyEvent(event, key)
+    if event == Keyboard.KEY_PRESS then
         if key == Keyboard.KEY_ESCAPE then
             Game.getInstance():exit()
         end
     end
 end
 
-function touchEvent(evt, x, y, contactIndex)
-    if evt == Touch.TOUCH_PRESS then
-        _touchTime = Game.getAbsoluteTime()
-        _touched = true
-        _touchX = x
-        local card = getCardAt(x, y)
-        if card then
-            card:getAgent():getStateMachine():setState('flipping')
-        end
-    elseif evt == Touch.TOUCH_RELEASE then
-        _touched = false
-        _touchX = 0
+function touchEvent(event, x, y, id)
+    id = id + 1
+    if 2 < id then
+        return -- ignore extra touches
+    end
+    local touch = touches[id]
+    if event == Touch.TOUCH_PRESS then
+        touch.time, touch.down = Game.getAbsoluteTime(), true
+        touch.x, touch.y, touch.dx, touch.dy = x, y, 0, 0
 
-        -- Basic emulation of tap to change state
-        if (Game.getAbsoluteTime() - _touchTime) < 200 then
-            --_scaleClip = _modelNode:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 250, 500 }, { 50,50,50, 75,75,75, 50,50,50 }, Curve.QUADRATIC_IN_OUT):getClip()
-            --_scaleClip:play()
-            --_modelNode:getAgent():getStateMachine():setState('flipping')
-            --toggleState()
+        local card = getCardAt(x, y, tableau.sx/2)
+        if card then
+            if 'idle' == card:getAgent():getStateMachine():getActiveState():getId() then
+                card:getAgent():getStateMachine():setState('touched')
+            end
+            touch.card = card
         end
-    elseif evt == Touch.TOUCH_MOVE then
-        local deltaX = x - _touchX
-        _touchX = x
-        _modelNode:rotateY(math.rad(deltaX * 0.5))
-    end    
+    elseif event == Touch.TOUCH_RELEASE then
+        touch.time, touch.down = Game.getAbsoluteTime(), false
+        touch.x, touch.y, touch.dx, touch.dy = x, y, x - touch.x, y - touch.y
+
+        if touch.card then
+            if 'touched' == touch.card:getAgent():getStateMachine():getActiveState():getId() then
+                touch.card:getAgent():getStateMachine():setState('idle')
+            end
+            touch.card = nil
+        end
+
+        -- Basic emulation of tap
+        if (Game.getAbsoluteTime() - touch.time) < 200 then
+        end
+    elseif event == Touch.TOUCH_MOVE then
+        touch.time = Game.getAbsoluteTime()
+        touch.x, touch.y, touch.dx, touch.dy = x, y, x - touch.x, y - touch.y
+
+        local card = getCardAt(x, y, tableau.sx/2)
+        if touch.card ~= card then
+            if touch.card and 'touched' == touch.card:getAgent():getStateMachine():getActiveState():getId() then
+                touch.card:getAgent():getStateMachine():setState('idle')
+            end
+            if card and 'idle' == card:getAgent():getStateMachine():getActiveState():getId() then
+                card:getAgent():getStateMachine():setState('touched')
+            end
+            touch.card = card
+        end
+        --cards[1]:rotateY(math.rad(touch.dx * 0.5))
+    end
 end
 
 function update(elapsedTime)
