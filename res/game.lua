@@ -7,6 +7,8 @@ local game
 
 local scene
 
+local q = Quaternion.new()
+
 local touches =
 {
     { time=0, down=false, x=0, y=0, dx=0, dy=0, card=nil },
@@ -22,6 +24,10 @@ local memory =
     cards = {} -- row major
 }
 
+-- List of all cards
+local cards = {}
+
+-- Tabular arrangement of cards
 local tableau =
 {
     w=6, h=4, -- dimensions of tableau in cards
@@ -31,11 +37,10 @@ local tableau =
     sx=150, sy=150, -- stride of layout in pixels
 }
 
--- List of all cards
-local cards = {}
-
 -- Avoid allocating new objects every frame.
 local textColor = Vector4.new(0, 0.5, 1, 1)
+
+local flippedCard
 
 function enter_card_idle(agent, state)
 end
@@ -46,19 +51,31 @@ end
 function enter_card_touched(agent, state)
     local card = agent:getNode()
     local sx, sy = card:getScaleX(), card:getScaleY()
-    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 250 }, { sx,sy,1, 1.5,1.5,1 }, Curve.QUADRATIC_IN_OUT):play()
+    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 200 }, { sx,sy,1, 1.5,1.5,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
 function exit_card_touched(agent, state)
     local card = agent:getNode()
     local sx, sy = card:getScaleX(), card:getScaleY()
-    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 250 }, { sx,sy,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
+    card:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 200 }, { sx,sy,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
 function enter_card_flipped(agent, state)
+    local card = agent:getNode()
+    card:getRotation(q)
+    local x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,1,0,0 }, Curve.QUADRATIC_IN_OUT):play()
+    if flippedCard then
+        flippedCard:getAgent():getStateMachine():setState('idle')
+    end
+    flippedCard = card
 end
 
 function exit_card_flipped(agent, state)
+    local card = agent:getNode()
+    card:getRotation(q)
+    local x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,0,0,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
 -- Returns the nearest card and its distance
@@ -200,7 +217,7 @@ end
 
 function touchEvent(event, x, y, id)
     id = id + 1
-    if 2 < id then
+    if 1 < id then
         return -- ignore extra touches
     end
     local touch = touches[id]
@@ -208,7 +225,7 @@ function touchEvent(event, x, y, id)
         touch.time, touch.down = Game.getAbsoluteTime(), true
         touch.x, touch.y, touch.dx, touch.dy = x, y, 0, 0
 
-        local card = getCardAt(x, y, tableau.sx/2)
+        local card = getCardAt(x, y, tableau.sx)
         if card then
             if 'idle' == card:getAgent():getStateMachine():getActiveState():getId() then
                 card:getAgent():getStateMachine():setState('touched')
@@ -221,7 +238,7 @@ function touchEvent(event, x, y, id)
 
         if touch.card then
             if 'touched' == touch.card:getAgent():getStateMachine():getActiveState():getId() then
-                touch.card:getAgent():getStateMachine():setState('idle')
+                touch.card:getAgent():getStateMachine():setState('flipped')
             end
             touch.card = nil
         end
@@ -233,7 +250,7 @@ function touchEvent(event, x, y, id)
         touch.time = Game.getAbsoluteTime()
         touch.x, touch.y, touch.dx, touch.dy = x, y, x - touch.x, y - touch.y
 
-        local card = getCardAt(x, y, tableau.sx/2)
+        local card = getCardAt(x, y, tableau.sx)
         if touch.card ~= card then
             if touch.card and 'touched' == touch.card:getAgent():getStateMachine():getActiveState():getId() then
                 touch.card:getAgent():getStateMachine():setState('idle')
