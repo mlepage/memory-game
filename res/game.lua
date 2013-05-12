@@ -17,6 +17,19 @@ local memory =
 -- Avoid allocating new objects every frame.
 local textColor = Vector4.new(0, 0.5, 1, 1)
 
+function flippingEnter(agent, state)
+    agent:getNode():getAnimation('scale'):play()
+end
+
+function flippingExit(agent, state)
+end
+
+function tileIdleEnter(agent, state)
+end
+
+function tileIdleExit(agent, state)
+end
+
 local function newGame()
     memory.tiles = {}
     for r = 1, memory.height do
@@ -28,16 +41,28 @@ local function newGame()
     end
 end
 
-local function createTileNode(x, y, w, h)
-    local mesh = Mesh.createQuad(
-        Vector3.new(-1, -1, 0),
-        Vector3.new(-1, 1, 0),
-        Vector3.new(1, -1, 0),
-        Vector3.new(1, 1, 0))
-    local model = Model.create(mesh)
-    model:setMaterial('res/tile.material')
+local function createTileNode()
     local node = scene:addNode('tile')
-    node:setModel(model)
+
+    local R = 50
+    local mesh = Mesh.createQuad(
+        Vector3.new(-R, -R, 0),
+        Vector3.new(-R, R, 0),
+        Vector3.new(R, -R, 0),
+        Vector3.new(R, R, 0))
+    node:setModel(Model.create(mesh))
+    node:getModel():setMaterial('res/tile.material')
+
+    node:setAgent(AIAgent.create())
+    local stateMachine = node:getAgent():getStateMachine()
+
+    local state
+    state = stateMachine:addState('flipping')
+    state:addScriptCallback('enter', "flippingEnter")
+    state:addScriptCallback('exit', "flippingExit")
+    
+    node:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 250, 500 }, { 1,1,1, 1.5,1.5,1.5, 1,1,1 }, Curve.QUADRATIC_IN_OUT)
+
     return node
 end
 
@@ -46,7 +71,6 @@ local function createGameView()
         for c = 1, memory.width do
             local tile = memory.tiles[r][c]
             local node = createTileNode()
-            node:scale(50, 50, 1)
             node:translate(c*150, r*150, 0)
             tile.node = node
         end
@@ -105,6 +129,9 @@ function touchEvent(evt, x, y, contactIndex)
 
         -- Basic emulation of tap to change state
         if (Game.getAbsoluteTime() - _touchTime) < 200 then
+            --_scaleClip = _modelNode:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 250, 500 }, { 50,50,50, 75,75,75, 50,50,50 }, Curve.QUADRATIC_IN_OUT):getClip()
+            --_scaleClip:play()
+            _modelNode:getAgent():getStateMachine():setState('flipping')
             toggleState()
         end
     elseif evt == Touch.TOUCH_MOVE then
