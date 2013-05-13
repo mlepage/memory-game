@@ -127,7 +127,17 @@ local function newCard()
         Vector3.new(R, -R, 0),
         Vector3.new(R, R, 0))
     card:setModel(Model.create(mesh))
-    card:getModel():setMaterial('res/card.material')
+    card:getModel():setMaterial('res/card.material#card-back')
+
+    local front = scene:addNode('card-front')
+    card:addChild(front)
+    mesh = Mesh.createQuad(
+        Vector3.new(R, -R, 0),
+        Vector3.new(R, R, 0),
+        Vector3.new(-R, -R, 0),
+        Vector3.new(-R, R, 0))
+    front:setModel(Model.create(mesh))
+    front:getModel():setMaterial('res/card.material#card-front')
 
     card:setAgent(newCardAgent())
     card:getAgent():getStateMachine():setState('idle')

@@ -1,5 +1,34 @@
-material tile
+material card
 {
+    // uniforms
+    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+    u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
+    u_cameraPosition = CAMERA_WORLD_POSITION
+    u_ambientColor = 1.0, 1.0, 1.0
+    u_lightColor = 0.75, 0.75, 0.75
+    u_specularExponent = 50
+    
+    // samplers
+    sampler u_diffuseTexture
+    {
+        //path = res/card-back.png
+        mipmap = true
+        wrapS = CLAMP
+        wrapT = CLAMP
+        minFilter = LINEAR_MIPMAP_LINEAR
+        magFilter = LINEAR
+    }
+
+    // render state
+    renderState
+    {
+        cullFace = true
+        depthTest = true
+        blend = true
+        srcBlend = SRC_ALPHA
+        dstBlend = ONE_MINUS_SRC_ALPHA
+    }
+
     technique
     {
         pass 0
@@ -8,32 +37,22 @@ material tile
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
             defines = SPECULAR
-            
-            // uniforms
-            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
-            u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-            u_cameraPosition = CAMERA_WORLD_POSITION
-            u_ambientColor = 1.0, 1.0, 1.0
-            u_lightColor = 0.75, 0.75, 0.75
-            u_specularExponent = 50
-            
-            // samplers
-            sampler u_diffuseTexture
-            {
-                path = res/tile.png
-                mipmap = true
-                wrapS = CLAMP
-                wrapT = CLAMP
-                minFilter = LINEAR_MIPMAP_LINEAR
-                magFilter = LINEAR
-            }
-
-            // render state
-            renderState
-            {
-                //cullFace = true
-                depthTest = true
-            }
         }
+    }
+}
+
+material card-back : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/card-back.png
+    }
+}
+
+material card-front : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/card-front.png
     }
 }
