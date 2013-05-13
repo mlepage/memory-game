@@ -65,6 +65,10 @@ function enter_card_flipped(agent, state)
     card:getRotation(q)
     local x, y, z, w = q:x(), q:y(), q:z(), q:w()
     card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,1,0,0 }, Curve.QUADRATIC_IN_OUT):play()
+    local sx, sy = card:getScaleX(), card:getScaleY()
+        card:createAnimation('scale2', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.5,1.5,1.5, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
+    if sx ~= 1.5 then
+    end
     if flippedCard then
         flippedCard:getAgent():getStateMachine():setState('idle')
     end
