@@ -30,11 +30,11 @@ local cards = {}
 -- Tabular arrangement of cards
 local tableau =
 {
-    w=6, h=4, -- dimensions of tableau in cards
+    w=8, h=6, -- dimensions of tableau in cards
     cards={}, -- cards in row major order
-    radius=50, -- radius of card in pixels
-    ox=250, oy=150, -- origin of layout in pixels
-    sx=150, sy=150, -- stride of layout in pixels
+    radius=40, -- radius of card in pixels
+    ox=180, oy=50, -- origin of layout in pixels
+    sx=120, sy=120, -- stride of layout in pixels
 }
 
 -- Avoid allocating new objects every frame.
@@ -121,27 +121,32 @@ local function newCardAgent()
     return agent
 end
 
-local function newCard()
-    local card = scene:addNode('card-' .. #cards+1)
+local function newQuad(w, h, material, id)
+    local node = scene:addNode(id)
 
-    local R = tableau.radius
+    w, h = w/2, h/2
     local mesh = Mesh.createQuad(
-        Vector3.new(-R, -R, 0),
-        Vector3.new(-R, R, 0),
-        Vector3.new(R, -R, 0),
-        Vector3.new(R, R, 0))
-    card:setModel(Model.create(mesh))
-    card:getModel():setMaterial('res/card.material#card-back')
+        Vector3.new(-w, -h, 0),
+        Vector3.new(-w, h, 0),
+        Vector3.new(w, -h, 0),
+        Vector3.new(w, h, 0))
+    node:setModel(Model.create(mesh))
 
-    local front = scene:addNode('card-front')
+    if material then
+        node:getModel():setMaterial(material)
+    end
+
+    return node
+end
+
+local function newCard()
+    local size = tableau.radius*2
+
+    local card = newQuad(size, size, 'res/card.material#card-back', 'card-' .. #cards+1)
+
+    local front = newQuad(size, size, 'res/card.material#card-front')
+    front:rotate(0, 1, 0, 0)
     card:addChild(front)
-    mesh = Mesh.createQuad(
-        Vector3.new(R, -R, 0),
-        Vector3.new(R, R, 0),
-        Vector3.new(-R, -R, 0),
-        Vector3.new(-R, R, 0))
-    front:setModel(Model.create(mesh))
-    front:getModel():setMaterial('res/card.material#card-front')
 
     card:setAgent(newCardAgent())
     card:getAgent():getStateMachine():setState('idle')
