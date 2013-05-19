@@ -3,16 +3,19 @@
 
 -- http://en.wikipedia.org/wiki/Concentration_(game)
 
-local game
+game = Game.getInstance()
+
+screen = {}
+local activeScreen
+local activeScreenName, nextScreenName
 
 local scene
 
-local q = Quaternion.new()
+local armedButton
+local buttonx, buttony
+local buttonHandlers = {}
 
-local titleh = 74
-local titlewa = 306
-local titlewb = 464
-local headsize = 256
+local q = Quaternion.new()
 
 local touches =
 {
@@ -144,6 +147,24 @@ local function newQuad(w, h, material, id)
     return node
 end
 
+local function newQuad2(w, h, material)
+    local node = Node.create()
+
+    w, h = w/2, h/2
+    node:setModel(Model.create(
+        Mesh.createQuad(
+            Vector3.new(-w, -h, 0),
+            Vector3.new(-w, h, 0),
+            Vector3.new(w, -h, 0),
+            Vector3.new(w, h, 0))))
+
+    if material then
+        node:getModel():setMaterial(material)
+    end
+
+    return node
+end
+
 local function newCard()
     local size = tableau.radius*2
 
@@ -197,10 +218,82 @@ local function layoutCards()
     end
 end
 
+function newButton(w, h, material, handler)
+    local button = newQuad2(w, h, material)
+    local hkey = tostring(handler)
+    button:setTag('button', 'true')
+    button:setTag('w', tostring(w))
+    button:setTag('h', tostring(h))
+    button:setTag('handler', hkey)
+    buttonHandlers[hkey] = handler
+    return button
+end
+
+local function gotoScreenImpl(name)
+    -- TODO transition and more logic
+
+    if activeScreen then
+        scene:removeNode(activeScreen.root)
+        if activeScreen.exit then
+            activeScreen.exit()
+        end
+    end
+
+    local s = screen[name]
+    if not s then
+        game:getScriptController():loadScript('res/' .. name .. '.lua')
+        s = screen[name]
+        if s.load then
+            s.load()
+        end
+    end
+
+    if s.enter then
+        s.enter()
+    end
+
+    scene:addNode(s.root)
+    activeScreen = s
+    activeScreenName = name
+end
+
+function gotoScreen(name)
+    nextScreenName = name
+end
+
 local function startGame()
     prepareCards()
     shuffleCards()
     layoutCards()
+end
+
+function visitArmButton(node)
+    if node:hasTag('button') then
+        print('testing button')
+        local w, h = tonumber(node:getTag('w')), tonumber(node:getTag('h'))
+        local x, y = node:getTranslationX(), node:getTranslationY()
+        if x-w/2 <= buttonx and buttonx <= x+w/2 and y-h/2 <= buttony and buttony <= y+h/2 then
+            print('button HIT')
+            buttonHandlers[node:getTag('handler')](node)
+        end
+        return false
+    end
+    return true
+end
+
+local function armButton(x, y)
+    buttonx, buttony = x, y
+    scene:visit('visitArmButton')
+end
+
+local function disarmButton(x, y)
+    buttonx, buttony = x, y
+    --scene:visit('visitDisarmButton')
+end
+
+local function fireButton(x, y)
+    buttonx, buttony = x, y
+    --scene:visit('visitFireButton')
 end
 
 function drawScene(node)
@@ -254,6 +347,8 @@ function touchEvent(event, x, y, id)
         touch.time, touch.down = Game.getAbsoluteTime(), true
         touch.x, touch.y, touch.dx, touch.dy = x, y, 0, 0
 
+        armButton(x, y)
+
         local card = getCardAt(x, y, tableau.sx)
         if card then
             if 'idle' == card:getAgent():getStateMachine():getActiveState():getId() then
@@ -264,6 +359,8 @@ function touchEvent(event, x, y, id)
     elseif event == Touch.TOUCH_RELEASE then
         touch.time, touch.down = Game.getAbsoluteTime(), false
         touch.x, touch.y, touch.dx, touch.dy = x, y, x - touch.x, y - touch.y
+
+        fireButton(x, y)
 
         if touch.card then
             if 'touched' == touch.card:getAgent():getStateMachine():getActiveState():getId() then
@@ -278,6 +375,8 @@ function touchEvent(event, x, y, id)
     elseif event == Touch.TOUCH_MOVE then
         touch.time = Game.getAbsoluteTime()
         touch.x, touch.y, touch.dx, touch.dy = x, y, x - touch.x, y - touch.y
+
+        disarmButton(x, y)
 
         local card = getCardAt(x, y, tableau.sx)
         if touch.card ~= card then
@@ -294,88 +393,20 @@ function touchEvent(event, x, y, id)
 end
 
 function update(elapsedTime)
-    _form:update(elapsedTime)
+    if activeScreenName ~= nextScreenName then
+        print('changing screen')
+        gotoScreenImpl(nextScreenName)
+    end
 end
 
 function render(elapsedTime)
-
-    -- TEST driving title screen layouts
-    if false then
-        if not titlea and scene then
-            titlea = newQuad(titlewa, titleh, 'res/card.material#title-a')
-            titleb = newQuad(titlewb, titleh, 'res/card.material#title-b')
-            local gw, gh = game:getWidth(), game:getHeight()
-            local y = gh * 1/3
-            if gh < gw then
-                local w = titlewa + titleh + titlewb
-                titlea:translate((gw - w + titlewa) / 2, y, 0)
-                titleb:translate((gw + w - titlewb) / 2, y, 0)
-            else
-                titlea:translate(gw/2, y-titleh/2, 0)
-                titleb:translate(gw/2, y+titleh/2, 0)
-            end
-
-            single = scene:addNode('single')
-            headf = newQuad(headsize, headsize, 'res/card.material#head-f')
-            headf:scale(0.5, 0.5, 0.5)
-            single:addChild(headf)
-            single:translate(gw * 1/3, gh * 2/3, 0)
-
-            multi = scene:addNode('multi')
-            headp1 = newQuad(headsize, headsize, 'res/card.material#head-p')
-            headp1:scale(0.5, 0.5, 0.5)
-            headp1:translate(-headsize/4, 0, 0)
-            multi:addChild(headp1)
-
-            --headp1:translate(gw * 2/3 - headsize/4, gh * 2/3, 0)
-            headp2 = newQuad(headsize, headsize, 'res/card.material#head-p')
-            headp2:rotate(0, 1, 0, 0)
-            headp2:scale(0.5, 0.5, 0.5)
-            headp2:translate(headsize/4, 0, 0)
-            --headp2:translate(gw * 2/3 + headsize/4, gh * 2/3, 0)
-            multi:addChild(headp2)
-            multi:translate(gw * 2/3, gh * 2/3, 0)
-        end
-        game:clear(Game.CLEAR_COLOR_DEPTH, Vector4.one(), 1.0, 0)
-        titlea:getModel():draw()
-        titleb:getModel():draw()
-        headf:getModel():draw()
-        headp1:getModel():draw()
-        headp2:getModel():draw()
-        return
-    end
-
-
-    -- Clear the color and depth buffers.
-    game:clear(Game.CLEAR_COLOR_DEPTH, Vector4.new(0, 0, 0.5, 1), 1.0, 0)
-
-    -- Visit all the nodes in the scene, drawing the models/mesh.
+    game:clear(Game.CLEAR_COLOR_DEPTH, activeScreen.color or Vector4.zero(), 1, 0)
     scene:visit('drawScene')
-
-    --_form:draw()
-
-    -- Draw the fps.
-    --local buffer = string.format('%u\n%s', Game.getInstance():getFrameRate(), _stateMachine:getActiveState():getId())
-    --_font:start()
-    --_font:drawText(buffer, 5, 1, textColor, _font:getSize())
-    --_font:finish()
 end
 
 function initialize()
-    -- Display splash screen for at least 1 second.
-    --ScreenDisplayer.start('drawSplash', 1000)
-
-    game = Game.getInstance()
-
     scene = Scene.create()
 
-    _touched = false
-    _touchX = 0
-
-    -- Load font
-    --_font = Font.create('res/arial40.gpb')
-
-    --local camera = Camera.createOrthographic(10, 10, 1280/720, 1, 10)
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
     local matrix = Matrix.new()
@@ -388,21 +419,8 @@ function initialize()
     scene:setActiveCamera(camera)
     cameraNode:translate(0, 0, 5);
 
-    startGame()
-    --_modelNode = memory.cards[1][1].node
-
-    _form = Form.create('res/editor.form')
-    
-    _reset = _form:getControl('reset');
-    _reset:addScriptCallback('controlEvent', '_controlEvent');
-    _emit = _form:getControl('emit');
-    _emit:addScriptCallback('controlEvent', '_controlEvent2');
-
-    ScreenDisplayer.finish()
+    gotoScreen('title')
 end
 
 function finalize()
-    --_font = nil
-    game = nil
-    scene = nil
 end
