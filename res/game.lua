@@ -9,6 +9,11 @@ local scene
 
 local q = Quaternion.new()
 
+local titleh = 74
+local titlewa = 306
+local titlewb = 464
+local headsize = 256
+
 local touches =
 {
     { time=0, down=false, x=0, y=0, dx=0, dy=0, card=nil },
@@ -147,6 +152,11 @@ local function newCard()
     local front = newQuad(size, size, 'res/card.material#card-front')
     front:rotate(0, 1, 0, 0)
     card:addChild(front)
+
+    local symbol = newQuad(size/2, size/2, 'res/card.material#card-z')
+    symbol:translate(0, 0, -1)
+    symbol:rotate(0, 1, 0, 0)
+    card:addChild(symbol)
 
     card:setAgent(newCardAgent())
     card:getAgent():getStateMachine():setState('idle')
@@ -288,13 +298,61 @@ function update(elapsedTime)
 end
 
 function render(elapsedTime)
+
+    -- TEST driving title screen layouts
+    if false then
+        if not titlea and scene then
+            titlea = newQuad(titlewa, titleh, 'res/card.material#title-a')
+            titleb = newQuad(titlewb, titleh, 'res/card.material#title-b')
+            local gw, gh = game:getWidth(), game:getHeight()
+            local y = gh * 1/3
+            if gh < gw then
+                local w = titlewa + titleh + titlewb
+                titlea:translate((gw - w + titlewa) / 2, y, 0)
+                titleb:translate((gw + w - titlewb) / 2, y, 0)
+            else
+                titlea:translate(gw/2, y-titleh/2, 0)
+                titleb:translate(gw/2, y+titleh/2, 0)
+            end
+
+            single = scene:addNode('single')
+            headf = newQuad(headsize, headsize, 'res/card.material#head-f')
+            headf:scale(0.5, 0.5, 0.5)
+            single:addChild(headf)
+            single:translate(gw * 1/3, gh * 2/3, 0)
+
+            multi = scene:addNode('multi')
+            headp1 = newQuad(headsize, headsize, 'res/card.material#head-p')
+            headp1:scale(0.5, 0.5, 0.5)
+            headp1:translate(-headsize/4, 0, 0)
+            multi:addChild(headp1)
+
+            --headp1:translate(gw * 2/3 - headsize/4, gh * 2/3, 0)
+            headp2 = newQuad(headsize, headsize, 'res/card.material#head-p')
+            headp2:rotate(0, 1, 0, 0)
+            headp2:scale(0.5, 0.5, 0.5)
+            headp2:translate(headsize/4, 0, 0)
+            --headp2:translate(gw * 2/3 + headsize/4, gh * 2/3, 0)
+            multi:addChild(headp2)
+            multi:translate(gw * 2/3, gh * 2/3, 0)
+        end
+        game:clear(Game.CLEAR_COLOR_DEPTH, Vector4.one(), 1.0, 0)
+        titlea:getModel():draw()
+        titleb:getModel():draw()
+        headf:getModel():draw()
+        headp1:getModel():draw()
+        headp2:getModel():draw()
+        return
+    end
+
+
     -- Clear the color and depth buffers.
-    Game.getInstance():clear(Game.CLEAR_COLOR_DEPTH, Vector4.zero(), 1.0, 0)
+    game:clear(Game.CLEAR_COLOR_DEPTH, Vector4.new(0, 0, 0.5, 1), 1.0, 0)
 
     -- Visit all the nodes in the scene, drawing the models/mesh.
     scene:visit('drawScene')
 
-    _form:draw()
+    --_form:draw()
 
     -- Draw the fps.
     --local buffer = string.format('%u\n%s', Game.getInstance():getFrameRate(), _stateMachine:getActiveState():getId())
