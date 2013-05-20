@@ -4,7 +4,7 @@
 screen.level = {}
 
 function screen.level.load()
-    screen.level.color = Vector4.zero()
+    screen.level.color = Vector4.one()
 
     print('loading level screen')
 
@@ -15,14 +15,14 @@ function screen.level.load()
 
     local single = newButton(sz, sz, 'res/card.material#head-p',
         function(button)
-            gotoScreen('title')
+            gotoScreen('level')
         end)
     single:setTranslation(gw * 1/3, gh * 2/3, 0)
     root:addChild(single)
 
     local versus = newButton(sz, sz, 'res/card.material#head-f',
         function(button)
-            gotoScreen('level')
+            gotoScreen('title')
         end)
     versus:setTranslation(gw * 2/3, gh * 2/3, 0)
     root:addChild(versus)

@@ -6,8 +6,10 @@
 game = Game.getInstance()
 
 screen = {}
-local activeScreen
+local activeScreen, nextScreen
 local activeScreenName, nextScreenName
+local transitionNode
+local transitionTime
 
 local scene
 
@@ -229,34 +231,6 @@ function newButton(w, h, material, handler)
     return button
 end
 
-local function gotoScreenImpl(name)
-    -- TODO transition and more logic
-
-    if activeScreen then
-        scene:removeNode(activeScreen.root)
-        if activeScreen.exit then
-            activeScreen.exit()
-        end
-    end
-
-    local s = screen[name]
-    if not s then
-        game:getScriptController():loadScript('res/' .. name .. '.lua')
-        s = screen[name]
-        if s.load then
-            s.load()
-        end
-    end
-
-    if s.enter then
-        s.enter()
-    end
-
-    scene:addNode(s.root)
-    activeScreen = s
-    activeScreenName = name
-end
-
 function gotoScreen(name)
     nextScreenName = name
 end
@@ -269,7 +243,6 @@ end
 
 function visitArmButton(node)
     if node:hasTag('button') then
-        print('testing button')
         local w, h = tonumber(node:getTag('w')), tonumber(node:getTag('h'))
         local x, y = node:getTranslationX(), node:getTranslationY()
         if x-w/2 <= buttonx and buttonx <= x+w/2 and y-h/2 <= buttony and buttony <= y+h/2 then
@@ -414,23 +387,61 @@ end
 
 function update(elapsedTime)
     if activeScreenName ~= nextScreenName then
-        print('changing screen')
-        gotoScreenImpl(nextScreenName)
+        if not transitionTime then
+            transitionTime = 0
+            scene:addNode(transitionNode)
+        else
+            local updatedTime = transitionTime + elapsedTime/1000
+            if transitionTime < 0.2 and 0.2 <= updatedTime then
+                if activeScreen then
+                    scene:removeNode(activeScreen.root)
+                    if activeScreen.exit then
+                        activeScreen.exit()
+                    end
+                end
+                if not screen[nextScreenName] then
+                    game:getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
+                    if screen[nextScreenName].load then
+                        screen[nextScreenName].load()
+                    end
+                end
+                nextScreen = screen[nextScreenName]
+                if nextScreen.enter then
+                    nextScreen.enter()
+                end
+                scene:removeNode(transitionNode)
+                scene:addNode(nextScreen.root)
+                scene:addNode(transitionNode)
+            end
+            transitionTime = updatedTime
+            if updatedTime < 0.4 then
+                local a = 1 - math.abs((updatedTime - 0.2) / 0.2)
+                local effect = transitionNode:getModel():getMaterial():getTechnique():getPassByIndex(0):getEffect()
+                local uniform = effect:getUniform('u_modulateAlpha')
+                effect:setValue(uniform, a)
+            else
+                scene:removeNode(transitionNode)
+                activeScreenName, activeScreen = nextScreenName, nextScreen
+                transitionTime = nil
+            end
+        end
     end
 end
 
 function render(elapsedTime)
-    game:clear(Game.CLEAR_COLOR_DEPTH, activeScreen.color or Vector4.zero(), 1, 0)
+    game:clear(Game.CLEAR_COLOR_DEPTH, (activeScreen and activeScreen.color) or Vector4.one(), 1, 0)
     scene:visit('drawScene')
 end
 
 function initialize()
     scene = Scene.create()
 
+    local gw, gh = game:getWidth(), game:getHeight()
+
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
     local matrix = Matrix.new()
-    Matrix.createOrthographicOffCenter(0, game:getWidth(), game:getHeight(), 0, -100, 100, matrix)
+    Matrix.createOrthographicOffCenter(0, gw, gh, 0, -100, 100, matrix)
     camera:resetProjectionMatrix()
     camera:setProjectionMatrix(matrix)
 
@@ -438,6 +449,10 @@ function initialize()
     cameraNode:setCamera(camera)
     scene:setActiveCamera(camera)
     cameraNode:translate(0, 0, 5);
+
+    transitionNode = newQuad2(gw, gh, 'res/card.material#black')
+    transitionNode:setTranslation(gw/2, gh/2, 0)
+    scene:addNode(transitionNode)
 
     gotoScreen('title')
 end
