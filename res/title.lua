@@ -9,11 +9,11 @@ function screen.title.load()
     print('loading title screen')
 
     local gw, gh = game:getWidth(), game:getHeight()
-    local sz = math.min(gw, gh) / 6
 
     local root = Node.create()
 
-    local single = newButton(sz, sz, 'res/card.material#head-f',
+    local single = newButton(defaultButtonSize, defaultButtonSize,
+        'res/card.material#head-f',
         function(button)
             players = 1
             gotoScreen('level')
@@ -21,7 +21,8 @@ function screen.title.load()
     single:setTranslation(gw * 1/3, gh * 2/3, 0)
     root:addChild(single)
 
-    local versus = newButton(sz, sz, 'res/card.material#head-p',
+    local versus = newButton(defaultButtonSize, defaultButtonSize,
+        'res/card.material#head-p',
         function(button)
             players = 2
             gotoScreen('level')

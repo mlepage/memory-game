@@ -11,6 +11,8 @@ local activeScreenName, nextScreenName
 local transitionNode
 local transitionTime
 
+defaultButtonSize = 64
+
 local scene
 
 local armedButton
@@ -449,6 +451,8 @@ function initialize()
     cameraNode:setCamera(camera)
     scene:setActiveCamera(camera)
     cameraNode:translate(0, 0, 5);
+
+    defaultButtonSize = math.min(gw, gh) / 6
 
     transitionNode = newQuad2(gw, gh, 'res/card.material#black')
     transitionNode:setTranslation(gw/2, gh/2, 0)

@@ -9,23 +9,38 @@ function screen.level.load()
     print('loading level screen')
 
     local gw, gh = game:getWidth(), game:getHeight()
-    local sz = math.min(gw, gh) / 6
+    local lsize = math.min(gw, gh) / 4
+    local lspace = math.min(gw, gh) / 5 * 3/2
+
+    if gw <= gh then
+        lsize = 0.8*lsize
+        lspace = 0.8*lspace
+    end
 
     local root = Node.create()
 
-    local single = newButton(sz, sz, 'res/card.material#head-p',
-        function(button)
-            gotoScreen('level')
-        end)
-    single:setTranslation(gw * 1/3, gh * 2/3, 0)
-    root:addChild(single)
-
-    local versus = newButton(sz, sz, 'res/card.material#head-f',
+    local back = newButton(defaultButtonSize, defaultButtonSize,
+        'res/card.material#head-p',
         function(button)
             gotoScreen('title')
         end)
-    versus:setTranslation(gw * 2/3, gh * 2/3, 0)
-    root:addChild(versus)
+    back:setTranslation(defaultButtonSize/2, gh - defaultButtonSize/2, 0)
+    root:addChild(back)
+
+    local l = 0
+    for r = -1, 1 do
+        for c = -1, 1 do
+            l = l + 1
+            local button = newButton(lsize, lsize,
+                'res/card.material#level-' .. l,
+                function(button)
+                    -- TODO set level to local l
+                    gotoScreen('title')
+                end)
+            button:setTranslation(gw/2 + c*lspace, gh/2 + r*lspace, 0)
+            root:addChild(button)
+        end
+    end
 
     screen.level.root = root
 end

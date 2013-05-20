@@ -214,3 +214,75 @@ material black
         }
     }
 }
+
+material level-1 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-1.png
+    }
+}
+
+material level-2 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-2.png
+    }
+}
+
+material level-3 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-3.png
+    }
+}
+
+material level-4 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-4.png
+    }
+}
+
+material level-5 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-5.png
+    }
+}
+
+material level-6 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-6.png
+    }
+}
+
+material level-7 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-7.png
+    }
+}
+
+material level-8 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-8.png
+    }
+}
+
+material level-9 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-9.png
+    }
+}
