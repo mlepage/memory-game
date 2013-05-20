@@ -28,6 +28,14 @@ material button
     }
 }
 
+material back : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/back.png
+    }
+}
+
 material pause : button
 {
     sampler u_diffuseTexture

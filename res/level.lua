@@ -20,7 +20,7 @@ function screen.level.load()
     local root = Node.create()
 
     local back = newButton(defaultButtonSize, defaultButtonSize,
-        'res/card.material#head-p',
+        'res/button.material#back',
         function(button)
             gotoScreen('title')
         end)
