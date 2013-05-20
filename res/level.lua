@@ -35,7 +35,7 @@ function screen.level.load()
                 'res/card.material#level-' .. l,
                 function(button)
                     -- TODO set level to local l
-                    gotoScreen('title')
+                    gotoScreen('game')
                 end)
             button:setTranslation(gw/2 + c*lspace, gh/2 + r*lspace, 0)
             root:addChild(button)

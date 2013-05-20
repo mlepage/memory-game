@@ -6,7 +6,7 @@
 game = Game.getInstance()
 
 screen = {}
-local activeScreen, nextScreen
+local activeScreen
 local activeScreenName, nextScreenName
 local transitionNode
 local transitionTime
@@ -388,44 +388,43 @@ function touchEvent(event, x, y, id)
 end
 
 function update(elapsedTime)
-    if activeScreenName ~= nextScreenName then
-        if not transitionTime then
+    if not transitionTime then
+        if activeScreenName ~= nextScreenName then
             transitionTime = 0
             scene:addNode(transitionNode)
+        end
+    else
+        local updatedTime = transitionTime + elapsedTime/1000
+        if transitionTime < 0.2 and 0.2 <= updatedTime then
+            if activeScreen then
+                scene:removeNode(activeScreen.root)
+                if activeScreen.exit then
+                    activeScreen.exit()
+                end
+            end
+            if not screen[nextScreenName] then
+                game:getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
+                if screen[nextScreenName].load then
+                    screen[nextScreenName].load()
+                end
+            end
+            activeScreenName, activeScreen = nextScreenName, screen[nextScreenName]
+            if activeScreen.enter then
+                activeScreen.enter()
+            end
+            scene:removeNode(transitionNode)
+            scene:addNode(activeScreen.root)
+            scene:addNode(transitionNode)
+        end
+        transitionTime = updatedTime
+        if updatedTime < 0.4 then
+            local a = 1 - math.abs((updatedTime - 0.2) / 0.2)
+            local effect = transitionNode:getModel():getMaterial():getTechnique():getPassByIndex(0):getEffect()
+            local uniform = effect:getUniform('u_modulateAlpha')
+            effect:setValue(uniform, a)
         else
-            local updatedTime = transitionTime + elapsedTime/1000
-            if transitionTime < 0.2 and 0.2 <= updatedTime then
-                if activeScreen then
-                    scene:removeNode(activeScreen.root)
-                    if activeScreen.exit then
-                        activeScreen.exit()
-                    end
-                end
-                if not screen[nextScreenName] then
-                    game:getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
-                    if screen[nextScreenName].load then
-                        screen[nextScreenName].load()
-                    end
-                end
-                nextScreen = screen[nextScreenName]
-                if nextScreen.enter then
-                    nextScreen.enter()
-                end
-                scene:removeNode(transitionNode)
-                scene:addNode(nextScreen.root)
-                scene:addNode(transitionNode)
-            end
-            transitionTime = updatedTime
-            if updatedTime < 0.4 then
-                local a = 1 - math.abs((updatedTime - 0.2) / 0.2)
-                local effect = transitionNode:getModel():getMaterial():getTechnique():getPassByIndex(0):getEffect()
-                local uniform = effect:getUniform('u_modulateAlpha')
-                effect:setValue(uniform, a)
-            else
-                scene:removeNode(transitionNode)
-                activeScreenName, activeScreen = nextScreenName, nextScreen
-                transitionTime = nil
-            end
+            scene:removeNode(transitionNode)
+            transitionTime = nil
         end
     end
 end
