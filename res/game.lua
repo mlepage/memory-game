@@ -4,7 +4,7 @@
 screen.game = {}
 
 function screen.game.load()
-    screen.game.color = Vector4.zero()
+    screen.game.color = Vector4.new(0.5, 0.5, 0.5, 1)
 
     print('loading game screen')
 
@@ -19,13 +19,13 @@ function screen.game.load()
 
     local root = Node.create()
 
-    local level = newButton(defaultButtonSize, defaultButtonSize,
-        'res/card.material#head-p',
+    local pause = newButton(defaultButtonSize, defaultButtonSize,
+        'res/button.material#pause',
         function(button)
             gotoScreen('level')
         end)
-    level:setTranslation(gw/2, defaultButtonSize/2, 0)
-    root:addChild(level)
+    pause:setTranslation(gw/2, defaultButtonSize/2, 0)
+    root:addChild(pause)
 
     screen.game.root = root
 end

@@ -453,7 +453,7 @@ function initialize()
 
     defaultButtonSize = math.min(gw, gh) / 6
 
-    transitionNode = newQuad2(gw, gh, 'res/card.material#black')
+    transitionNode = newQuad2(gw, gh, 'res/misc.material#black')
     transitionNode:setTranslation(gw/2, gh/2, 0)
     scene:addNode(transitionNode)
 

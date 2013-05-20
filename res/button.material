@@ -1,0 +1,117 @@
+material button
+{
+    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+    
+    sampler u_diffuseTexture
+    {
+        mipmap = true
+        wrapS = CLAMP
+        wrapT = CLAMP
+        minFilter = LINEAR_MIPMAP_LINEAR
+        magFilter = LINEAR
+    }
+
+    renderState
+    {
+        blend = true
+        srcBlend = SRC_ALPHA
+        dstBlend = ONE_MINUS_SRC_ALPHA
+    }
+
+    technique
+    {
+        pass 0
+        {
+            vertexShader = res/shaders/textured-unlit.vert
+            fragmentShader = res/shaders/textured-unlit.frag
+        }
+    }
+}
+
+material pause : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/pause.png
+    }
+}
+
+material play : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/play.png
+    }
+}
+
+material level-1 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-1.png
+    }
+}
+
+material level-2 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-2.png
+    }
+}
+
+material level-3 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-3.png
+    }
+}
+
+material level-4 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-4.png
+    }
+}
+
+material level-5 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-5.png
+    }
+}
+
+material level-6 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-6.png
+    }
+}
+
+material level-7 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-7.png
+    }
+}
+
+material level-8 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-8.png
+    }
+}
+
+material level-9 : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/level-9.png
+    }
+}

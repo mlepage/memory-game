@@ -13,8 +13,8 @@ function screen.level.load()
     local lspace = math.min(gw, gh) / 5 * 3/2
 
     if gw <= gh then
-        lsize = 0.8*lsize
-        lspace = 0.8*lspace
+        lsize = lsize * 13/16
+        lspace = lspace * 13/16
     end
 
     local root = Node.create()
@@ -32,7 +32,7 @@ function screen.level.load()
         for c = -1, 1 do
             l = l + 1
             local button = newButton(lsize, lsize,
-                'res/card.material#level-' .. l,
+                'res/button.material#level-' .. l,
                 function(button)
                     -- TODO set level to local l
                     gotoScreen('game')
