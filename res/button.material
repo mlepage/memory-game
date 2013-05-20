@@ -52,6 +52,22 @@ material play : button
     }
 }
 
+material reset : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/reset.png
+    }
+}
+
+material menu : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/menu.png
+    }
+}
+
 material level-1 : button
 {
     sampler u_diffuseTexture
