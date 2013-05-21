@@ -1,17 +1,9 @@
 material card
 {
-    // uniforms
     u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
-    u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-    u_cameraPosition = CAMERA_WORLD_POSITION
-    u_ambientColor = 1.0, 1.0, 1.0
-    u_lightColor = 0.75, 0.75, 0.75
-    u_specularExponent = 50
     
-    // samplers
     sampler u_diffuseTexture
     {
-        //path = res/card-back.png
         mipmap = true
         wrapS = CLAMP
         wrapT = CLAMP
@@ -19,29 +11,25 @@ material card
         magFilter = LINEAR
     }
 
-    // render state
     renderState
     {
-        cullFace = true
-        depthTest = true
         blend = true
         srcBlend = SRC_ALPHA
         dstBlend = ONE_MINUS_SRC_ALPHA
+        cullFace = true
     }
 
     technique
     {
         pass 0
         {
-            // shaders
-            vertexShader = res/shaders/textured.vert
-            fragmentShader = res/shaders/textured.frag
-            defines = SPECULAR
+            vertexShader = res/shaders/textured-unlit.vert
+            fragmentShader = res/shaders/textured-unlit.frag
         }
     }
 }
 
-material card-back : card
+material back : card
 {
     sampler u_diffuseTexture
     {
@@ -49,7 +37,7 @@ material card-back : card
     }
 }
 
-material card-front : card
+material front : card
 {
     sampler u_diffuseTexture
     {
@@ -57,53 +45,210 @@ material card-front : card
     }
 }
 
-material card-zzz : card
+material decal-a : card
 {
     sampler u_diffuseTexture
     {
-        path = res/card-z.png
+        path = res/decals/a.png
     }
 }
 
-material card-z
+material decal-b : card
 {
-    // uniforms
-    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
-    u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-    u_cameraPosition = CAMERA_WORLD_POSITION
-    u_ambientColor = 1.0, 1.0, 1.0
-    u_lightColor = 0.75, 0.75, 0.75
-    u_specularExponent = 50
-    
-    // samplers
     sampler u_diffuseTexture
     {
-        path = res/card-z.png
-        mipmap = true
-        wrapS = CLAMP
-        wrapT = CLAMP
-        minFilter = LINEAR_MIPMAP_LINEAR
-        magFilter = LINEAR
+        path = res/decals/b.png
     }
+}
 
-    // render state
-    renderState
+material decal-c : card
+{
+    sampler u_diffuseTexture
     {
-        cullFace = true
-        depthTest = true
-        blend = true
-        srcBlend = SRC_ALPHA
-        dstBlend = ONE_MINUS_SRC_ALPHA
+        path = res/decals/c.png
     }
+}
 
-    technique
+material decal-d : card
+{
+    sampler u_diffuseTexture
     {
-        pass 0
-        {
-            // shaders
-            vertexShader = res/shaders/textured.vert
-            fragmentShader = res/shaders/textured.frag
-            defines = SPECULAR
-        }
+        path = res/decals/d.png
+    }
+}
+
+material decal-e : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/e.png
+    }
+}
+
+material decal-f : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/f.png
+    }
+}
+
+material decal-g : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/g.png
+    }
+}
+
+material decal-h : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/h.png
+    }
+}
+
+material decal-i : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/i.png
+    }
+}
+
+material decal-j : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/j.png
+    }
+}
+
+material decal-k : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/k.png
+    }
+}
+
+material decal-l : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/l.png
+    }
+}
+
+material decal-m : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/m.png
+    }
+}
+
+material decal-n : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/n.png
+    }
+}
+
+material decal-o : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/o.png
+    }
+}
+
+material decal-p : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/p.png
+    }
+}
+
+material decal-q : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/q.png
+    }
+}
+
+material decal-r : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/r.png
+    }
+}
+
+material decal-s : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/s.png
+    }
+}
+
+material decal-t : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/t.png
+    }
+}
+
+material decal-u : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/u.png
+    }
+}
+
+material decal-v : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/v.png
+    }
+}
+
+material decal-w : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/w.png
+    }
+}
+
+material decal-x : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/x.png
+    }
+}
+
+material decal-y : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/y.png
+    }
+}
+
+material decal-z : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/z.png
     }
 }
