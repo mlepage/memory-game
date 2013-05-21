@@ -21,3 +21,65 @@ material black
         }
     }
 }
+
+material base
+{
+    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+    
+    sampler u_diffuseTexture
+    {
+        mipmap = true
+        wrapS = CLAMP
+        wrapT = CLAMP
+        minFilter = LINEAR_MIPMAP_LINEAR
+        magFilter = LINEAR
+    }
+
+    renderState
+    {
+        blend = true
+        srcBlend = SRC_ALPHA
+        dstBlend = ONE_MINUS_SRC_ALPHA
+    }
+
+    technique
+    {
+        pass 0
+        {
+            vertexShader = res/shaders/textured-unlit.vert
+            fragmentShader = res/shaders/textured-unlit.frag
+        }
+    }
+}
+
+material title-1 : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/title-1.png
+    }
+}
+
+material title-2 : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/title-2.png
+    }
+}
+
+material player-s : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/player-s.png
+    }
+}
+
+material player-1 : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/player-1.png
+    }
+}

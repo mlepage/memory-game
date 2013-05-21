@@ -5,6 +5,9 @@
 
 game = Game.getInstance()
 
+aspect = 1 -- screen width / height
+players = 1 -- 1 or 2
+
 screen = {}
 local activeScreen
 local activeScreenName, nextScreenName
@@ -133,7 +136,7 @@ local function newCardAgent()
     return agent
 end
 
-local function newQuad(w, h, material, id)
+local function newQuadOld(w, h, material, id)
     local node = scene:addNode(id)
 
     w, h = w/2, h/2
@@ -151,7 +154,7 @@ local function newQuad(w, h, material, id)
     return node
 end
 
-local function newQuad2(w, h, material)
+function newQuad(w, h, material)
     local node = Node.create()
 
     w, h = w/2, h/2
@@ -172,13 +175,13 @@ end
 local function newCard()
     local size = tableau.radius*2
 
-    local card = newQuad(size, size, 'res/card.material#card-back', 'card-' .. #cards+1)
+    local card = newQuadOld(size, size, 'res/card.material#card-back', 'card-' .. #cards+1)
 
-    local front = newQuad(size, size, 'res/card.material#card-front')
+    local front = newQuadOld(size, size, 'res/card.material#card-front')
     front:rotate(0, 1, 0, 0)
     card:addChild(front)
 
-    local symbol = newQuad(size/2, size/2, 'res/card.material#card-z')
+    local symbol = newQuadOld(size/2, size/2, 'res/card.material#card-z')
     symbol:translate(0, 0, -1)
     symbol:rotate(0, 1, 0, 0)
     card:addChild(symbol)
@@ -223,7 +226,7 @@ local function layoutCards()
 end
 
 function newButton(w, h, material, handler)
-    local button = newQuad2(w, h, material)
+    local button = newQuad(w, h, material)
     local hkey = tostring(handler)
     button:setTag('button', 'true')
     button:setTag('w', tostring(w))
@@ -438,6 +441,7 @@ function initialize()
     scene = Scene.create()
 
     local gw, gh = game:getWidth(), game:getHeight()
+    aspect = gw/gh
 
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
@@ -453,7 +457,7 @@ function initialize()
 
     defaultButtonSize = math.min(gw, gh) / 6
 
-    transitionNode = newQuad2(gw, gh, 'res/misc.material#black')
+    transitionNode = newQuad(gw, gh, 'res/misc.material#black')
     transitionNode:setTranslation(gw/2, gh/2, 0)
     scene:addNode(transitionNode)
 
