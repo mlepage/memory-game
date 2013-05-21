@@ -20,37 +20,41 @@ function screen.level.load()
         lspace = lspace * 13/16
     end
 
-    local back = newButton(defaultButtonSize, defaultButtonSize,
+    local back = newButton(BUTTON, BUTTON,
         'res/button.material#back',
         function(button)
             gotoScreen('title')
         end)
-    back:setTranslation(defaultButtonSize/2, GH - defaultButtonSize/2, 0)
+    back:setTranslation(BUTTON/2, GH - BUTTON/2, 0)
     root:addChild(back)
 
     local l = 0
     for r = -1, 1 do
         for c = -1, 1 do
             l = l + 1
-            local button = newButton(lsize, lsize,
-                'res/button.material#level-' .. l,
-                function(button)
-                    -- TODO set level to local l
-                    gotoScreen('game')
-                end)
-            button:setTranslation(GW/2 + c*lspace, GH/2 + r*lspace, 0)
-            root:addChild(button)
+            do
+                local level = l
+                local button = newButton(lsize, lsize,
+                    'res/button.material#level-' .. l,
+                    function(button)
+                        game.level = level
+                        game.w, game.h = game.sizes[level][1], game.sizes[level][2]
+                        gotoScreen('game')
+                    end)
+                button:setTranslation(GW/2 + c*lspace, GH/2 + r*lspace, 0)
+                root:addChild(button)
+            end
         end
     end
 
-    playerS = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-s')
-    playerS:setTranslation(defaultButtonSize/2, defaultButtonSize/2, 0)
+    playerS = newQuad(BUTTON, BUTTON, 'res/misc.material#player-s')
+    playerS:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player1 = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-1')
-    player1:setTranslation(defaultButtonSize/2, defaultButtonSize/2, 0)
+    player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
+    player1:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player2 = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-1')
-    player2:setTranslation(GW - defaultButtonSize/2, defaultButtonSize/2, 0)
+    player2 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
+    player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
     player2:setScale(-1, 1, 1)
 
     screen.level.root = root
@@ -59,7 +63,7 @@ end
 function screen.level.enter()
     print('entering level screen')
     local root = screen.level.root
-    if players == 1 then
+    if game.players == 1 then
         root:addChild(playerS)
         root:removeChild(player1)
         root:removeChild(player2)

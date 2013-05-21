@@ -3,21 +3,24 @@
 
 -- http://en.wikipedia.org/wiki/Concentration_(game)
 
-game = Game.getInstance()
-
 GW, GH = 720, 720
 GS = math.min(GW, GH)
 ASPECT = GW/GH
+BUTTON = 64
 
-players = 1 -- 1 or 2
+game =
+{
+    players = 1,
+    level = 1,
+    sizes = {{4,2},{4,3},{4,4},{5,4},{6,4},{6,5},{6,6},{7,6},{8,6}},
+    w = 4, h = 2,
+}
 
 screen = {}
 local activeScreen
 local activeScreenName, nextScreenName
 local transitionNode
 local transitionTime
-
-defaultButtonSize = 64
 
 local scene
 
@@ -409,7 +412,7 @@ function update(elapsedTime)
                 end
             end
             if not screen[nextScreenName] then
-                game:getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
+                Game.getInstance():getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
                 if screen[nextScreenName].load then
                     screen[nextScreenName].load()
                 end
@@ -436,16 +439,17 @@ function update(elapsedTime)
 end
 
 function render(elapsedTime)
-    game:clear(Game.CLEAR_COLOR_DEPTH, (activeScreen and activeScreen.color) or Vector4.one(), 1, 0)
+    Game.getInstance():clear(Game.CLEAR_COLOR_DEPTH, (activeScreen and activeScreen.color) or Vector4.one(), 1, 0)
     scene:visit('drawScene')
 end
 
 function initialize()
     scene = Scene.create()
 
-    GW, GH = game:getWidth(), game:getHeight()
+    GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()
     GS = math.min(GW, GH)
     ASPECT = GW/GH
+    BUTTON = GS / 6
 
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
@@ -458,8 +462,6 @@ function initialize()
     cameraNode:setCamera(camera)
     scene:setActiveCamera(camera)
     cameraNode:translate(0, 0, 5);
-
-    defaultButtonSize = GS / 6
 
     transitionNode = newQuad(GW, GH, 'res/misc.material#black')
     transitionNode:setTranslation(GW/2, GH/2, 0)

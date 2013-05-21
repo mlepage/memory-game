@@ -30,36 +30,36 @@ function screen.title.load()
         title2:setTranslation(w/2 - tw2/2, 0, 0)
     end
 
-    local single = newButton(defaultButtonSize, defaultButtonSize,
+    local single = newButton(BUTTON, BUTTON,
         'res/misc.material#player-s',
         function(button)
-            players = 1
+            game.players = 1
             gotoScreen('level')
         end)
     root:addChild(single)
 
-    local versus = newButton(2*defaultButtonSize, defaultButtonSize,
+    local versus = newButton(2*BUTTON, BUTTON,
         nil,
         function(button)
-            players = 2
+            game.players = 2
             gotoScreen('level')
         end)
     root:addChild(versus)
 
-    local player1 = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-1')
-    player1:setTranslation(-defaultButtonSize/2, 0, 0)
+    local player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
+    player1:setTranslation(-BUTTON/2, 0, 0)
     versus:addChild(player1)
-    local player2 = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-1')
-    player2:setTranslation(defaultButtonSize/2, 0, 0)
+    local player2 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
+    player2:setTranslation(BUTTON/2, 0, 0)
     player2:setScale(-1, 1, 0)
     versus:addChild(player2)
 
     if ASPECT <= 1 then
         single:setTranslation(GW * 1/4, GH * 3/4, 0)
-        versus:setTranslation(GW * 3/4 - defaultButtonSize/2, GH * 3/4, 0)
+        versus:setTranslation(GW * 3/4 - BUTTON/2, GH * 3/4, 0)
     else
         single:setTranslation(GW * 1/3, GH * 2/3, 0)
-        versus:setTranslation(GW * 2/3 - defaultButtonSize/2, GH * 2/3, 0)
+        versus:setTranslation(GW * 2/3 - BUTTON/2, GH * 2/3, 0)
     end
 
     screen.title.root = root
