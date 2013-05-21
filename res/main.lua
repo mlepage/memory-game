@@ -5,7 +5,10 @@
 
 game = Game.getInstance()
 
-aspect = 1 -- screen width / height
+GW, GH = 720, 720
+GS = math.min(GW, GH)
+ASPECT = GW/GH
+
 players = 1 -- 1 or 2
 
 screen = {}
@@ -440,13 +443,14 @@ end
 function initialize()
     scene = Scene.create()
 
-    local gw, gh = game:getWidth(), game:getHeight()
-    aspect = gw/gh
+    GW, GH = game:getWidth(), game:getHeight()
+    GS = math.min(GW, GH)
+    ASPECT = GW/GH
 
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
     local matrix = Matrix.new()
-    Matrix.createOrthographicOffCenter(0, gw, gh, 0, -100, 100, matrix)
+    Matrix.createOrthographicOffCenter(0, GW, GH, 0, -100, 100, matrix)
     camera:resetProjectionMatrix()
     camera:setProjectionMatrix(matrix)
 
@@ -455,10 +459,10 @@ function initialize()
     scene:setActiveCamera(camera)
     cameraNode:translate(0, 0, 5);
 
-    defaultButtonSize = math.min(gw, gh) / 6
+    defaultButtonSize = GS / 6
 
-    transitionNode = newQuad(gw, gh, 'res/misc.material#black')
-    transitionNode:setTranslation(gw/2, gh/2, 0)
+    transitionNode = newQuad(GW, GH, 'res/misc.material#black')
+    transitionNode:setTranslation(GW/2, GH/2, 0)
     scene:addNode(transitionNode)
 
     gotoScreen('title')

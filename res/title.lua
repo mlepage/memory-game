@@ -10,12 +10,10 @@ function screen.title.load()
 
     local root = Node.create()
 
-    local gw, gh = game:getWidth(), game:getHeight()
-
     local tw1, tw2, th = 306, 464, 74
 
     local title = Node.create()
-    title:setTranslation(gw/2, gh * 1/3, 0)
+    title:setTranslation(GW/2, GH * 1/3, 0)
 
     local title1 = newQuad(tw1, th, 'res/misc.material#title-1')
     title:addChild(title1)
@@ -23,7 +21,7 @@ function screen.title.load()
     title:addChild(title2)
     root:addChild(title)
 
-    if aspect <= 1 then
+    if ASPECT <= 1 then
         title1:setTranslation(0, -th, 0)
         title2:setTranslation(0, th, 0)
     else
@@ -56,12 +54,12 @@ function screen.title.load()
     player2:setScale(-1, 1, 0)
     versus:addChild(player2)
 
-    if aspect <= 1 then
-        single:setTranslation(gw * 1/4, gh * 3/4, 0)
-        versus:setTranslation(gw * 3/4 - defaultButtonSize/2, gh * 3/4, 0)
+    if ASPECT <= 1 then
+        single:setTranslation(GW * 1/4, GH * 3/4, 0)
+        versus:setTranslation(GW * 3/4 - defaultButtonSize/2, GH * 3/4, 0)
     else
-        single:setTranslation(gw * 1/3, gh * 2/3, 0)
-        versus:setTranslation(gw * 2/3 - defaultButtonSize/2, gh * 2/3, 0)
+        single:setTranslation(GW * 1/3, GH * 2/3, 0)
+        versus:setTranslation(GW * 2/3 - defaultButtonSize/2, GH * 2/3, 0)
     end
 
     screen.title.root = root

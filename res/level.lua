@@ -12,11 +12,10 @@ function screen.level.load()
 
     local root = Node.create()
 
-    local gw, gh = game:getWidth(), game:getHeight()
-    local lsize = math.min(gw, gh) / 4
-    local lspace = math.min(gw, gh) / 5 * 3/2
+    local lsize = GS / 4
+    local lspace = GS / 5 * 3/2
 
-    if gw <= gh then
+    if ASPECT <= 1 then
         lsize = lsize * 13/16
         lspace = lspace * 13/16
     end
@@ -26,7 +25,7 @@ function screen.level.load()
         function(button)
             gotoScreen('title')
         end)
-    back:setTranslation(defaultButtonSize/2, gh - defaultButtonSize/2, 0)
+    back:setTranslation(defaultButtonSize/2, GH - defaultButtonSize/2, 0)
     root:addChild(back)
 
     local l = 0
@@ -39,7 +38,7 @@ function screen.level.load()
                     -- TODO set level to local l
                     gotoScreen('game')
                 end)
-            button:setTranslation(gw/2 + c*lspace, gh/2 + r*lspace, 0)
+            button:setTranslation(GW/2 + c*lspace, GH/2 + r*lspace, 0)
             root:addChild(button)
         end
     end
@@ -51,7 +50,7 @@ function screen.level.load()
     player1:setTranslation(defaultButtonSize/2, defaultButtonSize/2, 0)
 
     player2 = newQuad(defaultButtonSize, defaultButtonSize, 'res/misc.material#player-1')
-    player2:setTranslation(gw - defaultButtonSize/2, defaultButtonSize/2, 0)
+    player2:setTranslation(GW - defaultButtonSize/2, defaultButtonSize/2, 0)
     player2:setScale(-1, 1, 1)
 
     screen.level.root = root
