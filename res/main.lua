@@ -160,8 +160,8 @@ local function newQuadOld(w, h, material, id)
     return node
 end
 
-function newQuad(w, h, material)
-    local node = Node.create()
+function newQuad(w, h, material, id)
+    local node = Node.create(id)
 
     w, h = w/2, h/2
     node:setModel(Model.create(

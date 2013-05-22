@@ -5,13 +5,14 @@ screen.game = {}
 
 local q = Quaternion.new()
 
+local root
 local playerS, player1, player2
 local pause
 
 local cards = {} -- all pairs of cards
 
 local function newCard(letter)
-    local card = newQuad(256, 256, 'res/card.material#back')
+    local card = Node.create('card')
 
     local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
     decal:rotate(0, 1, 0, 0)
@@ -21,17 +22,27 @@ local function newCard(letter)
     front:rotate(0, 1, 0, 0)
     card:addChild(front)
 
+    local back = newQuad(256, 256, 'res/card.material#back')
+    card:addChild(back)
+
     card:setTag('letter', letter)
 
     return card
 end
 
+local function setCardSize(card, size)
+    local scale = size/256
+    local child = card:getFirstChild()
+    while child do
+        child:setScale(scale, scale, 1)
+        child = child:getNextSibling()
+    end
+end
+
 function screen.game.load()
     screen.game.color = Vector4.new(0.25, 0.25, 0.25, 1)
 
-    print('loading game screen')
-
-    local root = Node.create()
+    root = Node.create()
 
     pause = newButton(BUTTON, BUTTON,
         'res/button.material#pause',
@@ -62,23 +73,72 @@ function screen.game.load()
     local card2 = cards[1][2]
     card2:setTranslation(GW * 2/3, GH/2, 0)
     root:addChild(card2)
-    card2:rotate(0, 1, 0, 0)
+    --card2:rotate(0, 1, 0, 0)
+    setCardSize(card2, 100)
 
     screen.game.root = root
 end
 
 function screen.game.enter()
-    print('entering game screen')
-    local root = screen.game.root
     if game.players == 1 then
         root:addChild(playerS)
-        root:removeChild(player1)
-        root:removeChild(player2)
         pause:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
     else
-        root:removeChild(playerS)
         root:addChild(player1)
         root:addChild(player2)
         pause:setTranslation(GW/2, BUTTON/2, 0)
+    end
+
+    local total = game.w * game.h
+    local used = {}
+    while #used < total do
+        local i = math.random(26)
+        if not cards[i].used then
+            used[#used+1] = cards[i][1]
+            used[#used+1] = cards[i][2]
+            cards[i].used = true
+        end
+    end
+    for i = 1, total do
+        local j = math.random(total)
+        used[i], used[j] = used[j], used[i]
+    end
+
+    -- space reserved for top bar
+    local top = BUTTON*0.85
+    -- unit width and height: card is 4 units, margin is 1 unit
+    local uw, uh = game.w*4 + game.w+1, game.h*4 + game.h+1
+    -- card size and margin (in pixels)
+    local size = 4 * math.min(GW/uw, (GH-top)/uh)
+    local margin = size/4
+    -- offset of playing area
+    local ox, oy = (GW-uw*margin)/2, (GH-top-uh*margin)/2
+
+    local i = 1
+    local y = top + oy + margin + size/2
+    for r = 1, game.h do
+        local x = ox + margin + size/2
+        for c = 1, game.w do
+            local card = used[i]
+            setCardSize(card, size)
+            card:setTranslation(x, y, 0)
+            card:rotate(0, 1, 0, 0)
+            root:addChild(card)
+            i = i + 1
+            x = x + margin + size
+        end
+        y = y + margin + size
+    end
+end
+
+function screen.game.exit()
+    root:removeChild(playerS)
+    root:removeChild(player1)
+    root:removeChild(player2)
+
+    for i = 1, 26 do
+        root:removeChild(cards[i][1])
+        root:removeChild(cards[i][2])
+        cards[i].used = nil
     end
 end
