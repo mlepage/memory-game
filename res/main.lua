@@ -87,8 +87,8 @@ function enter_card_flipped(agent, state)
     local x, y, z, w = q:x(), q:y(), q:z(), q:w()
     card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,1,0,0 }, Curve.QUADRATIC_IN_OUT):play()
     local sx, sy = card:getScaleX(), card:getScaleY()
-        card:createAnimation('scale2', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.5,1.5,1.5, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
     if sx ~= 1.5 then
+        card:createAnimation('scale2', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.5,1.5,1.5, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
     end
     if flippedCard then
         flippedCard:getAgent():getStateMachine():setState('idle')
@@ -247,6 +247,14 @@ function setButtonSize(button, w, h)
     button:setTag('h', tostring(h))
 end
 
+function setButtonEnabled(button, enabled)
+    if enabled then
+        button:setTag('disabled', nil)
+    else
+        button:setTag('disabled', 'true')
+    end
+end
+
 function gotoScreen(name)
     nextScreenName = name
 end
@@ -258,7 +266,7 @@ local function startGame()
 end
 
 function visitArmButton(node)
-    if node:hasTag('button') then
+    if node:hasTag('button') and not node:hasTag('disabled') then
         local w, h = tonumber(node:getTag('w')), tonumber(node:getTag('h'))
         local x, y = node:getTranslationX(), node:getTranslationY()
         if x-w/2 <= buttonx and buttonx <= x+w/2 and y-h/2 <= buttony and buttony <= y+h/2 then

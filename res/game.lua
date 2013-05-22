@@ -3,20 +3,86 @@
 
 screen.game = {}
 
-local q = Quaternion.new()
+-- states
+local IDLE, FLIP, NOMATCH, MATCH = 1, 2, 3, 4
+local STATE = IDLE
 
+local SIZE = 64 -- card size
+
+local PLAYER = 1
+local PAIRS = 4
+
+-- nodes
 local root
 local playerS, player1, player2
 local pause
-
 local cards = {} -- all pairs of cards
 
+local card1, card2 -- flipped cards
+
+local q = Quaternion.new()
+
+local function setAllCardsEnabled(enabled)
+    for i = 1, 26 do
+        setButtonEnabled(cards[i][1], enabled)
+        setButtonEnabled(cards[i][2], enabled)
+    end
+end
+
+local function animateCardFlip(card, flip)
+    local Y = flip and 1 or 0
+    local x, y, z, w
+    card:getRotation(q)
+    x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,Y,0,1-Y }, Curve.QUADRATIC_IN_OUT):play()
+    local sx, sy = card:getScaleX(), card:getScaleY()
+--    if sx ~= 1.2 then
+--        card:createAnimation('scale2', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.2,1.2,1.2, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
+--    end
+end
+
+local function animateCardWiggle(card)
+    local x, y, z, w
+    card:getRotation(q)
+    x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    card:createAnimation('wiggle', Transform.ANIMATE_ROTATE(), 2, { 500, 1000 }, { x,y,z,w, 0,0,1,0 }, Curve.QUADRATIC_IN_OUT):play()
+end
+
+local function animateCardToPlayer(card)
+end
+
+local function cardHandler(card)
+    local x, y, z, w
+    if STATE == IDLE then
+        card1 = card
+        STATE = FLIP
+        setButtonEnabled(card, false)
+        animateCardFlip(card, true)
+    elseif STATE == FLIP then
+        card2 = card
+        STATE = card1:getTag('letter') == card2:getTag('letter') and MATCH or NOMATCH
+        setAllCardsEnabled(false)
+        animateCardFlip(card, true)
+        if STATE == NOMATCH then
+            setButtonEnabled(card1, true)
+            setButtonEnabled(card2, true)
+            --animateCardWiggle(card1)
+            --animateCardWiggle(card2)
+        else
+            -- TODO fly cards to player, increase score, etc.
+            animateCardToPlayer(card1)
+            animateCardToPlayer(card2)
+        end
+    elseif STATE == NOMATCH then
+        STATE = IDLE
+        setAllCardsEnabled(true)
+        animateCardFlip(card1, false)
+        animateCardFlip(card2, false)
+    end
+end
+
 local function newCard(letter)
-    local card = newButton(BUTTON, BUTTON,
-        nil,
-        function()
-            -- TODO flip card etc.
-        end)
+    local card = newButton(BUTTON, BUTTON, nil, cardHandler)
 
     local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
     decal:rotate(0, 1, 0, 0)
@@ -139,33 +205,38 @@ function screen.game.enter()
     -- unit width and height: card is 4 units, margin is 1 unit
     local uw, uh = tw*4 + tw+1, th*4 + th+1
     -- card size and margin (in pixels)
-    local size = 4 * math.min(GW/uw, (GH-top)/uh)
-    local margin = size/4
+    SIZE = 4 * math.min(GW/uw, (GH-top)/uh)
+    local margin = SIZE/4
     -- offset of tableau
     local ox, oy = (GW-uw*margin)/2, (GH-top-uh*margin)/2
 
     local i = 1
-    local y = top + oy + margin + size/2
+    local y = top + oy + margin + SIZE/2
     for r = 1, th do
-        local x = ox + margin + size/2
+        local x = ox + margin + SIZE/2
         if r == th then
-            x = x + (margin+size)*te/2
+            x = x + (margin+SIZE)*te/2
         end
         for c = 1, tw do
             local card = used[i]
-            setCardSize(card, size)
-            card:setTranslation(x, y, 0)
+            setButtonEnabled(card, true)
+            setCardSize(card, SIZE)
             card:setScale(1, 1, 1)
-            card:rotate(0, 1, 0, 0)
+            card:setRotation(0, 0, 0, 1)
+            card:setTranslation(x, y, 0)
             root:addChild(card)
             if i == total then
                 break;
             end
             i = i + 1
-            x = x + margin + size
+            x = x + margin + SIZE
         end
-        y = y + margin + size
+        y = y + margin + SIZE
     end
+
+    STATE = IDLE
+    PLAYER = 1
+    PAIRS = total/2
 end
 
 function screen.game.exit()
