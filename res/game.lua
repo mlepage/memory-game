@@ -104,26 +104,57 @@ function screen.game.enter()
         used[i], used[j] = used[j], used[i]
     end
 
-    -- space reserved for top bar
+    -- space reserved for top
     local top = BUTTON*0.85
+
+    -- screen aspect ratio
+    local sw, sh = GW, GH - top
+    local sa = sw/sh
+
+    -- tableau aspect ratio (minimum two rows)
+    local th = 2
+    local tw = math.ceil(total/th)
+    local ta = tw/th
+    local te = 0
+
+    -- find tableau that best matches screen aspect ratio
+    while true do
+        local h = th + 1
+        local w = math.ceil(total/h)
+        local a = w/h
+        local e = w*h - total
+        if math.abs(a-sa) < math.abs(ta-sa) or
+                (math.abs(a-sa) == math.abs(ta-sa) and e < te) then
+            tw, th, ta, te = w, h, a, e
+        else
+            break
+        end
+    end
+
     -- unit width and height: card is 4 units, margin is 1 unit
-    local uw, uh = game.w*4 + game.w+1, game.h*4 + game.h+1
+    local uw, uh = tw*4 + tw+1, th*4 + th+1
     -- card size and margin (in pixels)
     local size = 4 * math.min(GW/uw, (GH-top)/uh)
     local margin = size/4
-    -- offset of playing area
+    -- offset of tableau
     local ox, oy = (GW-uw*margin)/2, (GH-top-uh*margin)/2
 
     local i = 1
     local y = top + oy + margin + size/2
-    for r = 1, game.h do
+    for r = 1, th do
         local x = ox + margin + size/2
-        for c = 1, game.w do
+        if r == th then
+            x = x + (margin+size)*te/2
+        end
+        for c = 1, tw do
             local card = used[i]
             setCardSize(card, size)
             card:setTranslation(x, y, 0)
             card:rotate(0, 1, 0, 0)
             root:addChild(card)
+            if i == total then
+                break;
+            end
             i = i + 1
             x = x + margin + size
         end
