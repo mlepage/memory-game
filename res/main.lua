@@ -242,6 +242,11 @@ function newButton(w, h, material, handler)
     return button
 end
 
+function setButtonSize(button, w, h)
+    button:setTag('w', tostring(w))
+    button:setTag('h', tostring(h))
+end
+
 function gotoScreen(name)
     nextScreenName = name
 end

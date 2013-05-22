@@ -12,7 +12,11 @@ local pause
 local cards = {} -- all pairs of cards
 
 local function newCard(letter)
-    local card = Node.create('card')
+    local card = newButton(BUTTON, BUTTON,
+        nil,
+        function()
+            -- TODO flip card etc.
+        end)
 
     local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
     decal:rotate(0, 1, 0, 0)
@@ -37,6 +41,7 @@ local function setCardSize(card, size)
         child:setScale(scale, scale, 1)
         child = child:getNextSibling()
     end
+    setButtonSize(card, size, size)
 end
 
 function screen.game.load()
@@ -150,6 +155,7 @@ function screen.game.enter()
             local card = used[i]
             setCardSize(card, size)
             card:setTranslation(x, y, 0)
+            card:setScale(1, 1, 1)
             card:rotate(0, 1, 0, 0)
             root:addChild(card)
             if i == total then
