@@ -259,6 +259,15 @@ function gotoScreen(name)
     nextScreenName = name
 end
 
+function loadScreen(name)
+    if not screen[name] then
+        Game.getInstance():getScriptController():loadScript('res/' .. name .. '.lua')
+        if screen[name].load then
+            screen[name].load()
+        end
+    end
+end
+
 local function startGame()
     prepareCards()
     shuffleCards()
@@ -424,12 +433,7 @@ function update(elapsedTime)
                     activeScreen.exit()
                 end
             end
-            if not screen[nextScreenName] then
-                Game.getInstance():getScriptController():loadScript('res/' .. nextScreenName .. '.lua')
-                if screen[nextScreenName].load then
-                    screen[nextScreenName].load()
-                end
-            end
+            loadScreen(nextScreenName)
             activeScreenName, activeScreen = nextScreenName, screen[nextScreenName]
             if activeScreen.enter then
                 activeScreen.enter()
@@ -479,6 +483,10 @@ function initialize()
     transitionNode = newQuad(GW, GH, 'res/misc.material#black')
     transitionNode:setTranslation(GW/2, GH/2, 0)
     scene:addNode(transitionNode)
+
+    loadScreen('title')
+    loadScreen('level')
+    loadScreen('game')
 
     gotoScreen('title')
 end
