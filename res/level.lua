@@ -8,8 +8,6 @@ local playerS, player1, player2
 function screen.level.load()
     screen.level.color = Vector4.one()
 
-    print('loading level screen')
-
     local root = Node.create()
 
     local lsize = GS / 4
@@ -61,7 +59,6 @@ function screen.level.load()
 end
 
 function screen.level.enter()
-    print('entering level screen')
     local root = screen.level.root
     if game.players == 1 then
         root:addChild(playerS)

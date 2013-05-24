@@ -461,6 +461,8 @@ function render(elapsedTime)
 end
 
 function initialize()
+    math.randomseed(os.time())
+
     scene = Scene.create()
 
     GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()

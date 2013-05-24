@@ -6,8 +6,6 @@ screen.title = {}
 function screen.title.load()
     screen.title.color = Vector4.one()
 
-    print('loading title screen')
-
     local root = Node.create()
 
     local tw1, tw2, th = 306, 464, 74
@@ -63,12 +61,4 @@ function screen.title.load()
     end
 
     screen.title.root = root
-end
-
-function screen.title.enter()
-    print('entering title screen')
-end
-
-function screen.title.exit()
-    print('exiting title screen')
 end

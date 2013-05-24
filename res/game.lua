@@ -4,13 +4,15 @@
 screen.game = {}
 
 -- states
-local IDLE, FLIP, NOMATCH, MATCH = 1, 2, 3, 4
+local IDLE, FLIP1, FLIP2, FLIP, NOMATCH, MATCH = 1, 2, 3, 4, 5, 6
 local STATE = IDLE
 
-local SIZE = 64 -- card size
-
+-- game info
 local PLAYER = 1
 local PAIRS = 4
+
+-- card size (in pixels)
+local SIZE = 64
 
 -- nodes
 local root
@@ -18,8 +20,10 @@ local playerS, player1, player2
 local pause
 local cards = {} -- all pairs of cards
 
-local card1, card2 -- flipped cards
+-- flipped cards
+local card1, card2
 
+-- temporary quaternion
 local q = Quaternion.new()
 
 local function setAllCardsEnabled(enabled)
@@ -29,55 +33,114 @@ local function setAllCardsEnabled(enabled)
     end
 end
 
-local function animateCardFlip(card, flip)
+local function animateCardFlip(card, flip, addEndListener)
     local Y = flip and 1 or 0
     local x, y, z, w
     card:getRotation(q)
     x, y, z, w = q:x(), q:y(), q:z(), q:w()
-    card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 500 }, { x,y,z,w, 0,Y,0,1-Y }, Curve.QUADRATIC_IN_OUT):play()
-    local sx, sy = card:getScaleX(), card:getScaleY()
---    if sx ~= 1.2 then
---        card:createAnimation('scale2', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.2,1.2,1.2, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
---    end
+    local animation = card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 400 }, { x,y,z,w, 0,Y,0,1-Y }, Curve.QUADRATIC_IN_OUT)
+    if addEndListener then
+       animation:getClip():addEndListener('animateCardFlipDone')
+    end
+    animation:play()
 end
 
-local function animateCardWiggle(card)
-    local x, y, z, w
-    card:getRotation(q)
-    x, y, z, w = q:x(), q:y(), q:z(), q:w()
-    card:createAnimation('wiggle', Transform.ANIMATE_ROTATE(), 2, { 500, 1000 }, { x,y,z,w, 0,0,1,0 }, Curve.QUADRATIC_IN_OUT):play()
+local function animateCardNoMatch(card, addEndListener)
+    local sx, sy = card:getScaleX(), card:getScaleY()
+    local animation = card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 150, 300 }, { sx,sy,1, 0.8,0.8,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT)
+    animation:getClip():setRepeatCount(3)
+    if addEndListener then
+        animation:getClip():addEndListener('animateCardNoMatchDone')
+    end
+    animation:play()
+end
+
+local function animateCardMatch(card, addEndListener)
+    local sx, sy = card:getScaleX(), card:getScaleY()
+    local animation = card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 150, 300 }, { sx,sy,1, 1.2,1.2,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT)
+    animation:getClip():setRepeatCount(3)
+    if addEndListener then
+        animation:getClip():addEndListener('animateCardMatchDone')
+    end
+    animation:play()
 end
 
 local function animateCardToPlayer(card)
+    local px, py = PLAYER == 1 and -SIZE or GW+SIZE, -SIZE
+    local x, y = card:getTranslationX(), card:getTranslationY()
+    local animation = card:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 600 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
+    animation:play()
+end
+
+local function animatePlayerSwitch(player, active)
+    local px, py = active and 1 or 0.75
+    local sx, sy = player:getScaleX(), player:getScaleY()
+    local animation = player:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 400 }, { sx,sy,1, px,px,1 }, Curve.QUADRATIC_IN_OUT)
+    animation:play()
+end
+
+local function switchPlayer()
+    if game.players == 2 then
+        PLAYER = 1 + (1 - (PLAYER - 1))
+        animatePlayerSwitch(player1, PLAYER == 1)
+        animatePlayerSwitch(player2, PLAYER == 2)
+    end
+end
+
+function animateCardFlipDone()
+    if STATE == FLIP1 then
+        setAllCardsEnabled(true)
+        setButtonEnabled(card1, false)
+    elseif STATE == FLIP2 then
+        STATE = card1:getTag('letter') == card2:getTag('letter') and MATCH or NOMATCH
+        if STATE == MATCH then
+            animateCardMatch(card1)
+            animateCardMatch(card2, true)
+        elseif STATE == NOMATCH then
+            animateCardNoMatch(card1)
+            animateCardNoMatch(card2, true)
+        end
+    elseif STATE == IDLE then
+        switchPlayer()
+        setAllCardsEnabled(true)
+    end
+end
+
+function animateCardNoMatchDone()
+    setButtonEnabled(card1, true)
+    setButtonEnabled(card2, true)
+end
+
+function animateCardMatchDone()
+    animateCardToPlayer(card1)
+    animateCardToPlayer(card2)
+    PAIRS = PAIRS - 1
+    if PAIRS ~= 0 then
+        switchPlayer()
+        setAllCardsEnabled(true)
+        STATE = IDLE
+    else
+        -- TODO game over man
+    end
 end
 
 local function cardHandler(card)
-    local x, y, z, w
     if STATE == IDLE then
         card1 = card
-        STATE = FLIP
-        setButtonEnabled(card, false)
-        animateCardFlip(card, true)
-    elseif STATE == FLIP then
-        card2 = card
-        STATE = card1:getTag('letter') == card2:getTag('letter') and MATCH or NOMATCH
         setAllCardsEnabled(false)
-        animateCardFlip(card, true)
-        if STATE == NOMATCH then
-            setButtonEnabled(card1, true)
-            setButtonEnabled(card2, true)
-            --animateCardWiggle(card1)
-            --animateCardWiggle(card2)
-        else
-            -- TODO fly cards to player, increase score, etc.
-            animateCardToPlayer(card1)
-            animateCardToPlayer(card2)
-        end
+        animateCardFlip(card, true, true)
+        STATE = FLIP1
+    elseif STATE == FLIP1 then
+        card2 = card
+        setAllCardsEnabled(false)
+        animateCardFlip(card, true, true)
+        STATE = FLIP2
     elseif STATE == NOMATCH then
-        STATE = IDLE
-        setAllCardsEnabled(true)
+        setButtonEnabled(card1, false)
+        setButtonEnabled(card2, false)
         animateCardFlip(card1, false)
-        animateCardFlip(card2, false)
+        animateCardFlip(card2, false, true)
+        STATE = IDLE
     end
 end
 
@@ -128,24 +191,13 @@ function screen.game.load()
     player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
     player1:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player2 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
+    player2 = newQuad(-BUTTON, BUTTON, 'res/misc.material#player-1')
     player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
-    player2:setScale(-1, 1, 1)
 
     for i = 1, 26 do
         local letter = string.char(string.byte('a') + i - 1)
         cards[i] = { newCard(letter), newCard(letter) }
     end
-
-    -- TEMP couple of cards for testing
-    local card1 = cards[1][1]
-    card1:setTranslation(GW * 1/3, GH/2, 0)
-    root:addChild(card1)
-    local card2 = cards[1][2]
-    card2:setTranslation(GW * 2/3, GH/2, 0)
-    root:addChild(card2)
-    --card2:rotate(0, 1, 0, 0)
-    setCardSize(card2, 100)
 
     screen.game.root = root
 end
@@ -235,8 +287,13 @@ function screen.game.enter()
     end
 
     STATE = IDLE
-    PLAYER = 1
     PAIRS = total/2
+    if game.players == 1 then
+        PLAYER = 1
+    else
+        PLAYER = 2
+        switchPlayer()
+    end
 end
 
 function screen.game.exit()
