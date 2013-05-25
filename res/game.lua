@@ -66,6 +66,8 @@ local function animateCardMatch(card, addEndListener)
 end
 
 local function animateCardToPlayer(card, addEndListener)
+    root:removeChild(card)
+    root:addChild(card)
     local px, py = game.player == 1 and -SIZE or GW+SIZE, -SIZE
     local x, y = card:getTranslationX(), card:getTranslationY()
     local animation = card:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 600 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
@@ -121,6 +123,8 @@ function animateCardMatchDone()
 end
 
 function animateCardToPlayerDone()
+    root:removeChild(card1)
+    root:removeChild(card2)
     if PAIRS ~= 0 then
         switchPlayer()
         setAllCardsEnabled(true)
@@ -153,16 +157,16 @@ end
 local function newCard(letter)
     local card = newButton(BUTTON, BUTTON, nil, cardHandler)
 
-    local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
-    decal:rotate(0, 1, 0, 0)
-    card:addChild(decal)
+    local back = newQuad(256, 256, 'res/card.material#back')
+    card:addChild(back)
 
     local front = newQuad(256, 256, 'res/card.material#front')
     front:rotate(0, 1, 0, 0)
     card:addChild(front)
 
-    local back = newQuad(256, 256, 'res/card.material#back')
-    card:addChild(back)
+    local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
+    decal:rotate(0, 1, 0, 0)
+    card:addChild(decal)
 
     card:setTag('letter', letter)
 

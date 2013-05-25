@@ -4,7 +4,7 @@
 -- http://en.wikipedia.org/wiki/Concentration_(game)
 
 GW, GH = 720, 720
-GS = math.min(GW, GH)
+GS, GL = math.min(GW, GH), math.max(GW, GH)
 ASPECT = GW/GH
 BUTTON = 64
 
@@ -322,12 +322,27 @@ local function fireButton(x, y)
     end
 end
 
-function drawScene(node)
+local function getLastChild(node)
+    local child = node:getFirstChild()
+    if child then
+        local next = child:getNextSibling()
+        while next do
+            child, next = next, next:getNextSibling()
+        end
+    end
+    return child
+end
+
+local function drawNode(node)
     local model = node:getModel()
     if model then
         model:draw()
     end
-    return true
+    local child = getLastChild(node)
+    while child do
+        drawNode(child)
+        child = child:getPreviousSibling()
+    end
 end
 
 function drawSplash()
@@ -457,7 +472,20 @@ end
 
 function render(elapsedTime)
     Game.getInstance():clear(Game.CLEAR_COLOR_DEPTH, (activeScreen and activeScreen.color) or Vector4.one(), 1, 0)
-    scene:visit('drawScene')
+
+    -- draw scene in reverse child order since children are added first
+    local node = scene:getFirstNode()
+    while node do
+        local next = node:getNextSibling()
+        if not next then
+            break
+        end
+        node = next
+    end
+    while node do
+        drawNode(node)
+        node = node:getNextSibling()
+    end
 end
 
 function initialize()
@@ -466,7 +494,7 @@ function initialize()
     scene = Scene.create()
 
     GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()
-    GS = math.min(GW, GH)
+    GS, GL = math.min(GW, GH), math.max(GW, GH)
     ASPECT = GW/GH
     BUTTON = GS / 6
 
