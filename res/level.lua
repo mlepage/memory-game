@@ -3,12 +3,13 @@
 
 screen.level = {}
 
-local playerS, player1, player2
+local root
+local player = {}
 
 function screen.level.load()
     screen.level.color = Vector4.one()
 
-    local root = Node.create()
+    root = Node.create()
 
     local lsize = GS / 4
     local lspace = GS / 5 * 3/2
@@ -44,28 +45,40 @@ function screen.level.load()
         end
     end
 
-    playerS = newQuad(BUTTON, BUTTON, 'res/misc.material#player-s')
-    playerS:setTranslation(BUTTON/2, BUTTON/2, 0)
+    player[0] = newQuad(BUTTON, BUTTON)
+    player[0]:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player1:setTranslation(BUTTON/2, BUTTON/2, 0)
+    player[1] = newQuad(BUTTON, BUTTON)
+    player[1]:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player2 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
-    player2:setScale(-1, 1, 1)
+    player[2] = newQuad(BUTTON, BUTTON)
+    player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
+    player[2]:setScale(-1, 1, 1)
 
     screen.level.root = root
 end
 
 function screen.level.enter()
-    local root = screen.level.root
     if game.players == 1 then
-        root:addChild(playerS)
-        root:removeChild(player1)
-        root:removeChild(player2)
+        screen.level.blink(0, false)
+        root:addChild(player[0])
     else
-        root:removeChild(playerS)
-        root:addChild(player1)
-        root:addChild(player2)
+        screen.level.blink(1, false)
+        screen.level.blink(2, false)
+        root:addChild(player[1])
+        root:addChild(player[2])
     end
+end
+
+function screen.level.exit()
+    root:removeChild(player[0])
+    root:removeChild(player[1])
+    root:removeChild(player[2])
+end
+
+function screen.level.blink(id, b)
+    local mid = id == 2 and 1 or id
+    local mb = b and '-blink' or ''
+    local material = 'res/misc.material#player-' .. mid .. mb
+    player[id]:getModel():setMaterial(material)
 end

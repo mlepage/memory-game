@@ -5,7 +5,7 @@ screen.complete = {}
 
 -- nodes
 local root
-local playerS, player1, player2
+local player = {}
 local next
 
 local function animatePlayerToCenter(player)
@@ -19,9 +19,9 @@ function screen.complete.load()
 
     root = Node.create()
 
-    playerS = newQuad(BUTTON, BUTTON, 'res/misc.material#player-s')
-    player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player2 = newQuad(-BUTTON, BUTTON, 'res/misc.material#player-1')
+    player[0] = newQuad(BUTTON, BUTTON)
+    player[1] = newQuad(BUTTON, BUTTON)
+    player[2] = newQuad(-BUTTON, BUTTON)
 
     local menu = newButton(BUTTON, BUTTON,
         'res/button.material#menu',
@@ -54,15 +54,21 @@ end
 
 function screen.complete.enter()
     if game.players == 1 then
-        root:addChild(playerS)
-        playerS:setTranslation(BUTTON/2, BUTTON/2, 0)
-        animatePlayerToCenter(playerS)
+        screen.complete.blink(0, false)
+        root:addChild(player[0])
+        player[0]:setScale(1, 1, 1)
+        player[0]:setTranslation(BUTTON/2, BUTTON/2, 0)
+        animatePlayerToCenter(player[0])
     else
-        root:addChild(player1)
-        root:addChild(player2)
-        player1:setTranslation(BUTTON/2, BUTTON/2, 0)
-        player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
-        animatePlayerToCenter(game.player == 1 and player1 or player2)
+        screen.complete.blink(1, false)
+        screen.complete.blink(2, false)
+        root:addChild(player[1])
+        root:addChild(player[2])
+        player[1]:setScale(1, 1, 1)
+        player[2]:setScale(1, 1, 1)
+        player[1]:setTranslation(BUTTON/2, BUTTON/2, 0)
+        player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
+        animatePlayerToCenter(player[game.player])
     end
 
     if game.level < 9 then
@@ -71,8 +77,15 @@ function screen.complete.enter()
 end
 
 function screen.complete.exit()
-    root:removeChild(playerS)
-    root:removeChild(player1)
-    root:removeChild(player2)
+    root:removeChild(player[0])
+    root:removeChild(player[1])
+    root:removeChild(player[2])
     root:removeChild(next)
+end
+
+function screen.complete.blink(id, b)
+    local mid = id == 2 and 1 or id
+    local mb = b and '-blink' or ''
+    local material = 'res/misc.material#player-' .. mid .. mb
+    player[id]:getModel():setMaterial(material)
 end

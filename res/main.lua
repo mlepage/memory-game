@@ -16,6 +16,8 @@ game =
     sizes = {{4,2},{4,3},{4,4},{5,4},{6,4},{6,5},{6,6},{7,6},{8,6}},
 }
 
+local blink = { [0]={ t=0, b=false }, { t=0, b=false }, { t=0, b=false } }
+
 screen = {}
 local activeScreen
 local activeScreenName, nextScreenName
@@ -434,6 +436,21 @@ function touchEvent(event, x, y, id)
 end
 
 function update(elapsedTime)
+    for i = 0, 2 do
+        blink[i].t = blink[i].t - elapsedTime/1000
+        if blink[i].t <= 0 then
+            blink[i].b = not blink[i].b
+            if activeScreen and activeScreen.blink then
+                activeScreen.blink(i, blink[i].b)
+            end
+            if blink[i].b then
+                blink[i].t = 0.1 + 0.3*math.random()
+            else
+                blink[i].t = 2 + 8*math.random()
+            end
+        end
+    end
+
     if not transitionTime then
         if activeScreenName ~= nextScreenName then
             transitionTime = 0
@@ -517,6 +534,10 @@ function initialize()
     transitionNode = newQuad(GW, GH, 'res/misc.material#black')
     transitionNode:setTranslation(GW/2, GH/2, 0)
     scene:addNode(transitionNode)
+
+    for i = 0, 2 do
+        blink[i].t = 2 + 8*math.random()
+    end
 
     loadScreen('title')
     loadScreen('level')

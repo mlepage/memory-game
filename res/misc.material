@@ -68,11 +68,19 @@ material title-2 : base
     }
 }
 
-material player-s : base
+material player-0 : base
 {
     sampler u_diffuseTexture
     {
-        path = res/player-s.png
+        path = res/player-0.png
+    }
+}
+
+material player-0-blink : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/player-0-blink.png
     }
 }
 
@@ -81,5 +89,13 @@ material player-1 : base
     sampler u_diffuseTexture
     {
         path = res/player-1.png
+    }
+}
+
+material player-1-blink : base
+{
+    sampler u_diffuseTexture
+    {
+        path = res/player-1-blink.png
     }
 }

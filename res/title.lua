@@ -3,6 +3,8 @@
 
 screen.title = {}
 
+local player = {}
+
 function screen.title.load()
     screen.title.color = Vector4.one()
 
@@ -28,13 +30,13 @@ function screen.title.load()
         title2:setTranslation(w/2 - tw2/2, 0, 0)
     end
 
-    local single = newButton(BUTTON, BUTTON,
-        'res/misc.material#player-s',
+    player[0] = newButton(BUTTON, BUTTON,
+        nil,
         function(button)
             game.players = 1
             gotoScreen('level')
         end)
-    root:addChild(single)
+    root:addChild(player[0])
 
     local versus = newButton(2*BUTTON, BUTTON,
         nil,
@@ -44,21 +46,34 @@ function screen.title.load()
         end)
     root:addChild(versus)
 
-    local player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player1:setTranslation(-BUTTON/2, 0, 0)
-    versus:addChild(player1)
-    local player2 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player2:setTranslation(BUTTON/2, 0, 0)
-    player2:setScale(-1, 1, 0)
-    versus:addChild(player2)
+    player[1] = newQuad(BUTTON, BUTTON)
+    player[1]:setTranslation(-BUTTON/2, 0, 0)
+    versus:addChild(player[1])
+    player[2] = newQuad(BUTTON, BUTTON)
+    player[2]:setTranslation(BUTTON/2, 0, 0)
+    player[2]:setScale(-1, 1, 0)
+    versus:addChild(player[2])
 
     if ASPECT <= 1 then
-        single:setTranslation(GW * 1/4, GH * 3/4, 0)
+        player[0]:setTranslation(GW * 1/4, GH * 3/4, 0)
         versus:setTranslation(GW * 3/4 - BUTTON/2, GH * 3/4, 0)
     else
-        single:setTranslation(GW * 1/3, GH * 2/3, 0)
+        player[0]:setTranslation(GW * 1/3, GH * 2/3, 0)
         versus:setTranslation(GW * 2/3 - BUTTON/2, GH * 2/3, 0)
     end
 
     screen.title.root = root
+end
+
+function screen.title.enter()
+    for i = 0, 2 do
+        screen.title.blink(i, false)
+    end
+end
+
+function screen.title.blink(id, b)
+    local mid = id == 2 and 1 or id
+    local mb = b and '-blink' or ''
+    local material = 'res/misc.material#player-' .. mid .. mb
+    player[id]:getModel():setMaterial(material)
 end

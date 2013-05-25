@@ -16,7 +16,7 @@ local BGSIZE = 64
 
 -- nodes
 local root
-local playerS, player1, player2
+local player = {}
 local pause
 local cards = {} -- all pairs of cards
 
@@ -92,8 +92,8 @@ end
 local function switchPlayer()
     if game.players == 2 then
         game.player = 1 + (1 - (game.player - 1))
-        animatePlayerSwitch(player1, game.player == 1)
-        animatePlayerSwitch(player2, game.player == 2)
+        animatePlayerSwitch(player[1], game.player == 1)
+        animatePlayerSwitch(player[2], game.player == 2)
     end
 end
 
@@ -200,14 +200,14 @@ function screen.game.load()
         end)
     root:addChild(pause)
 
-    playerS = newQuad(BUTTON, BUTTON, 'res/misc.material#player-s')
-    playerS:setTranslation(BUTTON/2, BUTTON/2, 0)
+    player[0] = newQuad(BUTTON, BUTTON)
+    player[0]:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player1 = newQuad(BUTTON, BUTTON, 'res/misc.material#player-1')
-    player1:setTranslation(BUTTON/2, BUTTON/2, 0)
+    player[1] = newQuad(BUTTON, BUTTON)
+    player[1]:setTranslation(BUTTON/2, BUTTON/2, 0)
 
-    player2 = newQuad(-BUTTON, BUTTON, 'res/misc.material#player-1')
-    player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
+    player[2] = newQuad(-BUTTON, BUTTON)
+    player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
 
     for i = 1, 26 do
         local letter = string.char(string.byte('a') + i - 1)
@@ -229,11 +229,17 @@ end
 
 function screen.game.enter()
     if game.players == 1 then
-        root:addChild(playerS)
+        screen.game.blink(0, false)
+        root:addChild(player[0])
+        player[0]:setScale(1, 1, 1)
         pause:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
     else
-        root:addChild(player1)
-        root:addChild(player2)
+        screen.game.blink(1, false)
+        screen.game.blink(2, false)
+        root:addChild(player[1])
+        root:addChild(player[2])
+        player[1]:setScale(1, 1, 1)
+        player[2]:setScale(1, 1, 1)
         pause:setTranslation(GW/2, BUTTON/2, 0)
     end
 
@@ -322,13 +328,20 @@ function screen.game.enter()
 end
 
 function screen.game.exit()
-    root:removeChild(playerS)
-    root:removeChild(player1)
-    root:removeChild(player2)
+    root:removeChild(player[0])
+    root:removeChild(player[1])
+    root:removeChild(player[2])
 
     for i = 1, 26 do
         root:removeChild(cards[i][1])
         root:removeChild(cards[i][2])
         cards[i].used = nil
     end
+end
+
+function screen.game.blink(id, b)
+    local mid = id == 2 and 1 or id
+    local mb = b and '-blink' or ''
+    local material = 'res/misc.material#player-' .. mid .. mb
+    player[id]:getModel():setMaterial(material)
 end
