@@ -12,6 +12,7 @@ local PAIRS = 4
 
 -- card size (in pixels)
 local SIZE = 64
+local BGSIZE = 64
 
 -- nodes
 local root
@@ -184,7 +185,7 @@ local function setCardSize(card, size)
 end
 
 function screen.game.load()
-    screen.game.color = Vector4.new(0.25, 0.25, 0.25, 1)
+    screen.game.color = Vector4.one()
 
     root = Node.create()
 

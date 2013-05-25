@@ -468,6 +468,10 @@ function update(elapsedTime)
             transitionTime = nil
         end
     end
+
+    if activeScreen and activeScreen.update then
+        activeScreen.update(elapsedTime)
+    end
 end
 
 function render(elapsedTime)
