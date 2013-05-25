@@ -10,8 +10,9 @@ BUTTON = 64
 
 game =
 {
-    players = 1,
-    level = 1,
+    players = 1, -- number of players (1 or 2)
+    player = 1,  -- current player (1 or 2)
+    level = 1,   -- level (1 to 9)
     sizes = {{4,2},{4,3},{4,4},{5,4},{6,4},{6,5},{6,6},{7,6},{8,6}},
 }
 

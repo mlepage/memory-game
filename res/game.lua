@@ -8,7 +8,6 @@ local IDLE, FLIP1, FLIP2, FLIP, NOMATCH, MATCH = 1, 2, 3, 4, 5, 6
 local STATE = IDLE
 
 -- game info
-local PLAYER = 1
 local PAIRS = 4
 
 -- card size (in pixels)
@@ -65,10 +64,13 @@ local function animateCardMatch(card, addEndListener)
     animation:play()
 end
 
-local function animateCardToPlayer(card)
-    local px, py = PLAYER == 1 and -SIZE or GW+SIZE, -SIZE
+local function animateCardToPlayer(card, addEndListener)
+    local px, py = game.player == 1 and -SIZE or GW+SIZE, -SIZE
     local x, y = card:getTranslationX(), card:getTranslationY()
     local animation = card:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 600 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
+    if addEndListener then
+        animation:getClip():addEndListener('animateCardToPlayerDone')
+    end
     animation:play()
 end
 
@@ -81,9 +83,9 @@ end
 
 local function switchPlayer()
     if game.players == 2 then
-        PLAYER = 1 + (1 - (PLAYER - 1))
-        animatePlayerSwitch(player1, PLAYER == 1)
-        animatePlayerSwitch(player2, PLAYER == 2)
+        game.player = 1 + (1 - (game.player - 1))
+        animatePlayerSwitch(player1, game.player == 1)
+        animatePlayerSwitch(player2, game.player == 2)
     end
 end
 
@@ -113,8 +115,11 @@ end
 
 function animateCardMatchDone()
     animateCardToPlayer(card1)
-    animateCardToPlayer(card2)
+    animateCardToPlayer(card2, true)
     PAIRS = PAIRS - 1
+end
+
+function animateCardToPlayerDone()
     if PAIRS ~= 0 then
         switchPlayer()
         setAllCardsEnabled(true)
@@ -289,9 +294,9 @@ function screen.game.enter()
     STATE = IDLE
     PAIRS = total/2
     if game.players == 1 then
-        PLAYER = 1
+        game.player = 1
     else
-        PLAYER = 2
+        game.player = 2
         switchPlayer()
     end
 end

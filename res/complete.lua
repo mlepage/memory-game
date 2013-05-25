@@ -8,6 +8,12 @@ local root
 local playerS, player1, player2
 local next
 
+local function animatePlayerToCenter(player)
+    local x, y = player:getTranslationX(), player:getTranslationY()
+    player:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 1000 }, { x,y,0, GW/2,GH/3,0 }, Curve.QUADRATIC_IN_OUT):play()
+    player:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 1000 }, { 1,1,1, 3,3,1 }, Curve.QUADRATIC_IN_OUT):play()
+end
+
 function screen.complete.load()
     screen.complete.color = Vector4.one()
 
@@ -50,11 +56,13 @@ function screen.complete.enter()
     if game.players == 1 then
         root:addChild(playerS)
         playerS:setTranslation(BUTTON/2, BUTTON/2, 0)
+        animatePlayerToCenter(playerS)
     else
         root:addChild(player1)
         root:addChild(player2)
         player1:setTranslation(BUTTON/2, BUTTON/2, 0)
         player2:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
+        animatePlayerToCenter(game.player == 1 and player1 or player2)
     end
 
     if game.level < 9 then
