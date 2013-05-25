@@ -48,7 +48,7 @@ end
 local function animateCardNoMatch(card, addEndListener)
     card:getRotation(q)
     local x, y, z, w = q:x(), q:y(), q:z(), q:w()
-    local animation = card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 6, { 0, 100, 300, 500, 700, 800 }, { x,y,z,w, q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), 0,1,0,0 }, Curve.QUADRATIC_IN_OUT)
+    local animation = card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 6, { 0, 75, 225, 375, 525, 600 }, { x,y,z,w, q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), 0,1,0,0 }, Curve.QUADRATIC_IN_OUT)
     if addEndListener then
         animation:getClip():addEndListener('animateCardNoMatchDone')
     end
