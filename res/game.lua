@@ -120,7 +120,7 @@ function animateCardMatchDone()
         setAllCardsEnabled(true)
         STATE = IDLE
     else
-        -- TODO game over man
+        gotoScreen('complete')
     end
 end
 
@@ -212,7 +212,7 @@ function screen.game.enter()
         pause:setTranslation(GW/2, BUTTON/2, 0)
     end
 
-    local total = game.w * game.h
+    local total = game.sizes[game.level][1] * game.sizes[game.level][2]
     local used = {}
     while #used < total do
         local i = math.random(26)

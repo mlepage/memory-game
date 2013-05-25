@@ -68,6 +68,14 @@ material menu : button
     }
 }
 
+material next : button
+{
+    sampler u_diffuseTexture
+    {
+        path = res/next.png
+    }
+}
+
 material level-1 : button
 {
     sampler u_diffuseTexture

@@ -36,7 +36,6 @@ function screen.level.load()
                     'res/button.material#level-' .. l,
                     function(button)
                         game.level = level
-                        game.w, game.h = game.sizes[level][1], game.sizes[level][2]
                         gotoScreen('game')
                     end)
                 button:setTranslation(GW/2 + c*lspace, GH/2 + r*lspace, 0)
