@@ -22,8 +22,10 @@ local cards = {} -- all pairs of cards
 -- flipped cards
 local card1, card2
 
--- temporary quaternion
+-- quaternions
 local q = Quaternion.new()
+local q1 = Quaternion.new()
+local q2 = Quaternion.new()
 
 local function setAllCardsEnabled(enabled)
     for i = 1, 26 do
@@ -34,9 +36,8 @@ end
 
 local function animateCardFlip(card, flip, addEndListener)
     local Y = flip and 1 or 0
-    local x, y, z, w
     card:getRotation(q)
-    x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    local x, y, z, w = q:x(), q:y(), q:z(), q:w()
     local animation = card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 2, { 0, 400 }, { x,y,z,w, 0,Y,0,1-Y }, Curve.QUADRATIC_IN_OUT)
     if addEndListener then
        animation:getClip():addEndListener('animateCardFlipDone')
@@ -45,9 +46,9 @@ local function animateCardFlip(card, flip, addEndListener)
 end
 
 local function animateCardNoMatch(card, addEndListener)
-    local sx, sy = card:getScaleX(), card:getScaleY()
-    local animation = card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 150, 300 }, { sx,sy,1, 0.8,0.8,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT)
-    animation:getClip():setRepeatCount(3)
+    card:getRotation(q)
+    local x, y, z, w = q:x(), q:y(), q:z(), q:w()
+    local animation = card:createAnimation('rotate', Transform.ANIMATE_ROTATE(), 6, { 0, 100, 300, 500, 700, 800 }, { x,y,z,w, q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), q1:x(),q1:y(),q1:z(),q1:w(), q2:x(),q2:y(),q2:z(),q2:w(), 0,1,0,0 }, Curve.QUADRATIC_IN_OUT)
     if addEndListener then
         animation:getClip():addEndListener('animateCardNoMatchDone')
     end
@@ -203,6 +204,16 @@ function screen.game.load()
         local letter = string.char(string.byte('a') + i - 1)
         cards[i] = { newCard(letter), newCard(letter) }
     end
+
+    -- set quaternions
+    local card = cards[1][1]
+    card:setRotation(0, 1, 0, 0)
+    card:rotate(Vector3.unitZ(), math.rad(15))
+    card:getRotation(q1)
+    card:setRotation(0, 1, 0, 0)
+    card:rotate(Vector3.unitZ(), math.rad(-15))
+    card:getRotation(q2)
+    card:setRotation(0, 0, 0, 1)
 
     screen.game.root = root
 end
