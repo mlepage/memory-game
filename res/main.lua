@@ -311,13 +311,13 @@ local function fireButton(x, y)
     buttonx, buttony = x, y
     if armedButton then
         local node = armedButton
+        local sx, sy = node:getScaleX(), node:getScaleY()
+        node:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 200 }, { sx,sy,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
         local w, h = tonumber(node:getTag('w')), tonumber(node:getTag('h'))
         local x, y = node:getTranslationX(), node:getTranslationY()
         if x-w/2 <= buttonx and buttonx <= x+w/2 and y-h/2 <= buttony and buttony <= y+h/2 then
             buttonHandlers[node:getTag('handler')](node)
         end
-        local sx, sy = node:getScaleX(), node:getScaleY()
-        node:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 200 }, { sx,sy,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
         armedButton = nil
     end
 end

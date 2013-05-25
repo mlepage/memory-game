@@ -43,6 +43,10 @@ local function animateCardFlip(card, flip, addEndListener)
     if addEndListener then
        animation:getClip():addEndListener('animateCardFlipDone')
     end
+    local sx, sy = card:getScaleX(), card:getScaleY()
+    if sx ~= 1.2 then
+        card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.2,1.2,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
+    end
     animation:play()
 end
 
