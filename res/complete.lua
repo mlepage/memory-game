@@ -10,7 +10,7 @@ local next
 
 local function animatePlayerToCenter(player)
     local x, y = player:getTranslationX(), player:getTranslationY()
-    player:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 1000 }, { x,y,0, GW/2,GH/3,0 }, Curve.QUADRATIC_IN_OUT):play()
+    player:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 1000 }, { x,y,0, GW/2,GH*2/5,0 }, Curve.QUADRATIC_IN_OUT):play()
     player:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 1000 }, { 1,1,1, 3,3,1 }, Curve.QUADRATIC_IN_OUT):play()
 end
 
@@ -45,9 +45,9 @@ function screen.complete.load()
         end)
     root:addChild(next)
 
-    menu:setTranslation(GW * 1/3, GH * 2/3, 0)
-    reset:setTranslation(GW * 1/2, GH * 2/3, 0)
-    next:setTranslation(GW * 2/3, GH * 2/3, 0)
+    menu:setTranslation(GW * 1/3, GH * 4/5, 0)
+    reset:setTranslation(GW * 1/2, GH * 4/5, 0)
+    next:setTranslation(GW * 2/3, GH * 4/5, 0)
 
     screen.complete.root = root
 end
