@@ -14,7 +14,10 @@ game =
     player = 1,  -- current player (1 or 2)
     level = 1,   -- level (1 to 9)
     sizes = {{4,2},{4,3},{4,4},{5,4},{6,4},{6,5},{6,6},{7,6},{8,6}},
+    score = {},
 }
+
+font = nil
 
 local blink = { [0]={ t=0, b=false }, { t=0, b=false }, { t=0, b=false } }
 
@@ -247,12 +250,18 @@ function render(elapsedTime)
         drawNode(node)
         node = node:getNextSibling()
     end
+
+    if activeScreen and activeScreen.draw then
+        activeScreen.draw()
+    end
 end
 
 function initialize()
     math.randomseed(os.time())
 
     scene = Scene.create()
+
+    font = Font.create("res/arial.gpb")
 
     GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()
     GS, GL = math.min(GW, GH), math.max(GW, GH)

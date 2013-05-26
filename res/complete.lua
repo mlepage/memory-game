@@ -49,6 +49,8 @@ function screen.complete.load()
     reset:setTranslation(GW * 1/2, GH * 4/5, 0)
     next:setTranslation(GW * 2/3, GH * 4/5, 0)
 
+    screen.complete.draw = screen.game.draw
+
     screen.complete.root = root
 end
 
@@ -68,6 +70,10 @@ function screen.complete.enter()
         player[2]:setScale(1, 1, 1)
         player[1]:setTranslation(BUTTON/2, BUTTON/2, 0)
         player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
+        local other = 1 + (1 - (game.player - 1))
+        if game.score[game.player] <= game.score[other] then
+            game.player = other
+        end
         animatePlayerToCenter(player[game.player])
     end
 
