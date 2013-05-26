@@ -300,10 +300,10 @@ function screen.game.load()
     -- set quaternions
     local card = cards[1][1]
     card:setRotation(0, 1, 0, 0)
-    card:rotate(Vector3.unitZ(), math.rad(15))
+    card:rotate(Vector3.unitZ(), math.rad(12.25))
     card:getRotation(q1)
     card:setRotation(0, 1, 0, 0)
-    card:rotate(Vector3.unitZ(), math.rad(-15))
+    card:rotate(Vector3.unitZ(), math.rad(-12.25))
     card:getRotation(q2)
     card:setRotation(0, 0, 0, 1)
 
