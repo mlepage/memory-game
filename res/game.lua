@@ -4,8 +4,10 @@
 screen.game = {}
 
 -- states
-local IDLE, FLIP1, FLIP2, FLIP, NOMATCH, MATCH = 1, 2, 3, 4, 5, 6
+local IDLE, FLIP1, FLIP2, NOMATCH, MATCH = 1, 2, 3, 4, 5, 6
 local STATE = IDLE
+
+local PAUSED = false
 
 -- game info
 local PAIRS = 4
@@ -17,7 +19,8 @@ local BGSIZE = 64
 -- nodes
 local root
 local player = {}
-local pause
+local pause, reset, menu
+local dim
 local cards = {} -- all pairs of cards
 
 -- flipped cards
@@ -28,7 +31,7 @@ local q = Quaternion.new()
 local q1 = Quaternion.new()
 local q2 = Quaternion.new()
 
-local function setAllCardsEnabled(enabled)
+local function setCardsEnabled(enabled)
     for i = 1, 26 do
         setButtonEnabled(cards[i][1], enabled)
         setButtonEnabled(cards[i][2], enabled)
@@ -99,8 +102,10 @@ end
 
 function animateCardFlipDone()
     if STATE == FLIP1 then
-        setAllCardsEnabled(true)
-        setButtonEnabled(card1, false)
+        if not PAUSED then
+            setCardsEnabled(true)
+            setButtonEnabled(card1, false)
+        end
     elseif STATE == FLIP2 then
         STATE = card1:getTag('letter') == card2:getTag('letter') and MATCH or NOMATCH
         if STATE == MATCH then
@@ -112,13 +117,17 @@ function animateCardFlipDone()
         end
     elseif STATE == IDLE then
         switchPlayer()
-        setAllCardsEnabled(true)
+        if not PAUSED then
+            setCardsEnabled(true)
+        end
     end
 end
 
 function animateCardNoMatchDone()
-    setButtonEnabled(card1, true)
-    setButtonEnabled(card2, true)
+    if not PAUSED then
+        setButtonEnabled(card1, true)
+        setButtonEnabled(card2, true)
+    end
 end
 
 function animateCardMatchDone()
@@ -132,22 +141,48 @@ function animateCardToPlayerDone()
     root:removeChild(card2)
     if PAIRS ~= 0 then
         switchPlayer()
-        setAllCardsEnabled(true)
         STATE = IDLE
+        if not PAUSED then
+            setCardsEnabled(true)
+        end
     else
         gotoScreen('complete')
+    end
+end
+
+function animatePauseDone()
+    setButtonEnabled(pause, true)
+    setButtonEnabled(reset, true)
+    setButtonEnabled(menu, true)
+end
+
+function animatePlayDone()
+    PAUSED = false
+    root:removeChild(dim)
+    root:removeChild(reset)
+    root:removeChild(menu)
+    setButtonEnabled(pause, true)
+    if STATE == IDLE then
+        setCardsEnabled(true)
+    elseif STATE == FLIP1 then
+        setCardsEnabled(true)
+        setButtonEnabled(card1, false)
+    elseif STATE == NOMATCH then
+        setCardsEnabled(false)
+        setButtonEnabled(card1, true)
+        setButtonEnabled(card2, true)
     end
 end
 
 local function cardHandler(card)
     if STATE == IDLE then
         card1 = card
-        setAllCardsEnabled(false)
+        setCardsEnabled(false)
         animateCardFlip(card, true, true)
         STATE = FLIP1
     elseif STATE == FLIP1 then
         card2 = card
-        setAllCardsEnabled(false)
+        setCardsEnabled(false)
         animateCardFlip(card, true, true)
         STATE = FLIP2
     elseif STATE == NOMATCH then
@@ -188,15 +223,63 @@ local function setCardSize(card, size)
     setButtonSize(card, size, size)
 end
 
+local function setPaused(paused)
+    local px, py = pause:getTranslationX(), pause:getTranslationY()
+    if paused then
+        PAUSED = true
+        setCardsEnabled(false)
+        setButtonEnabled(pause, false)
+        setButtonEnabled(reset, false)
+        setButtonEnabled(menu, false)
+        pause:getModel():setMaterial('res/button.material#play')
+        root:removeChild(pause)
+        root:addChild(dim)
+        root:addChild(reset)
+        root:addChild(menu)
+        root:addChild(pause)
+        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 3, { 0, 200, 400 }, { px,py,0, px,py,0, px-BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT):play()
+        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { px,py,0, px-2*BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT)
+        animation:getClip():addEndListener('animatePauseDone')
+        animation:play()
+    else
+        setCardsEnabled(false)
+        setButtonEnabled(pause, false)
+        setButtonEnabled(reset, false)
+        setButtonEnabled(menu, false)
+        pause:getModel():setMaterial('res/button.material#pause')
+        local x, y = reset:getTranslationX(), reset:getTranslationY()
+        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 200 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT):play()
+        x, y = menu:getTranslationX(), menu:getTranslationY()
+        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
+        animation:getClip():addEndListener('animatePlayDone')
+        animation:play()
+    end
+end
+
 function screen.game.load()
     screen.game.color = Vector4.one()
 
     root = Node.create()
 
+    dim = newQuad(GW, GH, 'res/misc.material#dim')
+    dim:setTranslation(GW/2, GH/2, 0)
+
+    menu = newButton(BUTTON, BUTTON,
+        'res/button.material#menu',
+        function(button)
+            gotoScreen('level')
+        end)
+
+    reset = newButton(BUTTON, BUTTON,
+        'res/button.material#reset',
+        function(button)
+            gotoScreen('game')
+        end)
+
     pause = newButton(BUTTON, BUTTON,
         'res/button.material#pause',
         function(button)
-            gotoScreen('level')
+            setPaused(not PAUSED)
         end)
     root:addChild(pause)
 
@@ -228,6 +311,7 @@ function screen.game.load()
 end
 
 function screen.game.enter()
+    local px, py
     if game.players == 1 then
         screen.game.blink(0, false)
         root:addChild(player[0])
@@ -242,6 +326,10 @@ function screen.game.enter()
         player[2]:setScale(1, 1, 1)
         pause:setTranslation(GW/2, BUTTON/2, 0)
     end
+
+    PAUSED = false
+    root:removeChild(reset)
+    root:removeChild(menu)
 
     local total = game.sizes[game.level][1] * game.sizes[game.level][2]
     local used = {}
@@ -328,6 +416,8 @@ function screen.game.enter()
 end
 
 function screen.game.exit()
+    pause:getModel():setMaterial('res/button.material#pause')
+    root:removeChild(dim)
     root:removeChild(player[0])
     root:removeChild(player[1])
     root:removeChild(player[2])

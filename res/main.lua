@@ -257,8 +257,10 @@ function setButtonEnabled(button, enabled)
     end
 end
 
-function gotoScreen(name)
+function gotoScreen(name, force)
     nextScreenName = name
+    transitionTime = 0
+    scene:addNode(transitionNode)
 end
 
 function loadScreen(name)
@@ -451,12 +453,7 @@ function update(elapsedTime)
         end
     end
 
-    if not transitionTime then
-        if activeScreenName ~= nextScreenName then
-            transitionTime = 0
-            scene:addNode(transitionNode)
-        end
-    else
+    if transitionTime then
         local updatedTime = transitionTime + elapsedTime/1000
         if transitionTime < 0.2 and 0.2 <= updatedTime then
             if activeScreen then
