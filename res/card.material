@@ -252,3 +252,83 @@ material decal-z : card
         path = res/decals/z.png
     }
 }
+
+material decal-0 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/0.png
+    }
+}
+
+material decal-1 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/1.png
+    }
+}
+
+material decal-2 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/2.png
+    }
+}
+
+material decal-3 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/3.png
+    }
+}
+
+material decal-4 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/4.png
+    }
+}
+
+material decal-5 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/5.png
+    }
+}
+
+material decal-6 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/6.png
+    }
+}
+
+material decal-7 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/7.png
+    }
+}
+
+material decal-8 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/8.png
+    }
+}
+
+material decal-9 : card
+{
+    sampler u_diffuseTexture
+    {
+        path = res/decals/9.png
+    }
+}

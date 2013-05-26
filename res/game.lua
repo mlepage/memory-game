@@ -28,12 +28,22 @@ local card1, card2
 
 local dimTime, dimming = 0, true
 
-local color = Vector4.new(0, 0, 0, 1)
-
 -- quaternions
 local q = Quaternion.new()
 local q1 = Quaternion.new()
 local q2 = Quaternion.new()
+
+local function updateScore(n)
+    local score = score[n]
+    print('updating score player', n, 'score', game.score[n])
+    getDigits(score, game.score[n])
+    local w, h = tonumber(score:getTag('w')), tonumber(score:getTag('h'))
+    local x = BUTTON + w/2
+    if n == 2 then
+        x = GW - x
+    end
+    score:setTranslation(x, h/2, 0)
+end
 
 local function setCardsEnabled(enabled)
     for i = 1, 26 do
@@ -143,8 +153,9 @@ end
 function animateCardToPlayerDone()
     root:removeChild(card1)
     root:removeChild(card2)
+    game.score[game.player] = game.score[game.player] + 1
+    updateScore(game.player)
     if PAIRS ~= 0 then
-        game.score[game.player] = game.score[game.player] + 1
         switchPlayer()
         STATE = IDLE
         if not PAUSED then
@@ -431,12 +442,17 @@ function screen.game.enter()
 
     STATE = IDLE
     PAIRS, game.score[1], game.score[2] = total/2, 0, 0
+    root:addChild(score[1])
     if game.players == 1 then
         game.player = 1
     else
         game.player = 2
         switchPlayer()
+        root:addChild(score[2])
     end
+
+    updateScore(1)
+    updateScore(2)
 end
 
 function screen.game.exit()
@@ -451,15 +467,10 @@ function screen.game.exit()
         root:removeChild(cards[i][2])
         cards[i].used = nil
     end
-end
 
-function screen.game.draw()
-    font:start()
-    font:drawText(tostring(game.score[1]), BUTTON, 20, color, font:getSize())
-    if game.players == 2 then
-        font:drawText(tostring(game.score[2]), GW-BUTTON-40, 20, color, font:getSize())
-    end
-    font:finish()
+    root:removeChild(score[1])
+    root:removeChild(score[2])
+    freeDigits()
 end
 
 function screen.game.blink(id, b)

@@ -17,7 +17,7 @@ game =
     score = {},
 }
 
-font = nil
+score = { nil, nil } -- score nodes
 
 local blink = { [0]={ t=0, b=false }, { t=0, b=false }, { t=0, b=false } }
 
@@ -28,6 +28,8 @@ local transitionNode
 local transitionTime
 
 local scene
+
+local digits = {}
 
 local armedButton
 local buttonx, buttony
@@ -49,6 +51,53 @@ function newQuad(w, h, material, id)
     end
 
     return node
+end
+
+function freeDigits()
+    for n = 1, #digits do
+        for i = 1, #digits[n] do
+            digits[n][i]:setTag('used', nil)
+        end
+    end
+end
+
+function newDigit(n)
+    if not digits[n] then
+        digits[n] = {}
+    end
+    local digit
+    for i = 1, #digits[n] do
+        if not digits[n][i]:hasTag('used') then
+            digit = digits[n][i]
+            break
+        end
+    end
+    if not digit then
+        digit = newQuad(BUTTON, BUTTON, 'res/card.material#decal-' .. n)
+        digits[n][#digits[n]+1] = digit
+    end
+    digit:setTag('used', 'true')
+    return digit
+end
+
+function getDigits(node, n)
+    local digit = node:getFirstChild()
+    while digit do
+        digit:setTag('used', nil)
+        node:removeChild(digit)
+        digit = node:getFirstChild()
+    end
+    local s = tostring(n)
+    local w = #s * 0.5*BUTTON
+    local x = -w/2 + 0.3*BUTTON
+    for i = 1, #s do
+        digit = newDigit(s:sub(i, i))
+        digit:setTranslation(x, 0.025*BUTTON, 0)
+        node:addChild(digit)
+        x = x + 0.5*BUTTON
+    end
+    node:setTag('w', tostring(w))
+    node:setTag('h', tostring(BUTTON))
 end
 
 function newButton(w, h, material, handler)
@@ -261,8 +310,6 @@ function initialize()
 
     scene = Scene.create()
 
-    font = Font.create("res/arial.gpb")
-
     GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()
     GS, GL = math.min(GW, GH), math.max(GW, GH)
     ASPECT = GW/GH
@@ -283,6 +330,8 @@ function initialize()
     transitionNode = newQuad(GW, GH, 'res/misc.material#black')
     transitionNode:setTranslation(GW/2, GH/2, 0)
     scene:addNode(transitionNode)
+
+    score[1], score[2] = Node.create(), Node.create()
 
     for i = 0, 2 do
         blink[i].t = 2 + 8*math.random()
