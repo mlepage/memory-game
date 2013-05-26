@@ -25,7 +25,8 @@ material black
 material dim
 {
     u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
-    u_diffuseColor = 0.0, 0.0, 0.0, 0.25
+    u_diffuseColor = 0.0, 0.0, 0.0, 1.0
+    //u_modulateAlpha = 0.5
     
     renderState
     {
@@ -40,6 +41,7 @@ material dim
         {
             vertexShader = res/shaders/colored-unlit.vert
             fragmentShader = res/shaders/colored-unlit.frag
+            defines = MODULATE_ALPHA
         }
     }
 }

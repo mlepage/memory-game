@@ -26,6 +26,8 @@ local cards = {} -- all pairs of cards
 -- flipped cards
 local card1, card2
 
+local dimTime, dimming = 0, true
+
 -- quaternions
 local q = Quaternion.new()
 local q1 = Quaternion.new()
@@ -174,6 +176,23 @@ function animatePlayDone()
     end
 end
 
+local function updateDim(elapsedTime)
+    dimTime = dimTime + elapsedTime
+    local a = dimTime/400
+    if 1 < a then
+        a = 1
+        screen.game.update = nil
+    end
+    if not dimming then
+        a = 1-a
+    end
+    a = a/2
+    local effect = dim:getModel():getMaterial():getTechnique():getPassByIndex(0):getEffect()
+    local uniform = effect:getUniform('u_modulateAlpha')
+    print('dimming', a)
+    effect:setValue(uniform, a)
+end
+
 local function cardHandler(card)
     if STATE == IDLE then
         card1 = card
@@ -241,6 +260,7 @@ local function setPaused(paused)
         local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { px,py,0, px-2*BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT)
         animation:getClip():addEndListener('animatePauseDone')
         animation:play()
+        dimTime, dimming, screen.game.update = 0, true, updateDim
     else
         setCardsEnabled(false)
         setButtonEnabled(pause, false)
@@ -253,6 +273,7 @@ local function setPaused(paused)
         local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
         animation:getClip():addEndListener('animatePlayDone')
         animation:play()
+        dimTime, dimming, screen.game.update = 0, false, updateDim
     end
 end
 
