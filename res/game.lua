@@ -35,7 +35,6 @@ local q2 = Quaternion.new()
 
 local function updateScore(n)
     local score = score[n]
-    print('updating score player', n, 'score', game.score[n])
     getDigits(score, game.score[n])
     local w, h = tonumber(score:getTag('w')), tonumber(score:getTag('h'))
     local x = BUTTON + w/2
@@ -192,7 +191,7 @@ end
 
 local function updateDim(elapsedTime)
     dimTime = dimTime + elapsedTime
-    local a = dimTime/400
+    local a = dimTime/200
     if 1 < a then
         a = 1
         screen.game.update = nil
@@ -267,8 +266,8 @@ local function setPaused(paused)
         root:addChild(reset)
         root:addChild(menu)
         root:addChild(pause)
-        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 3, { 0, 200, 400 }, { px,py,0, px,py,0, px-BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT):play()
-        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { px,py,0, px-2*BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT)
+        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 3, { 0, 100, 200 }, { px,py,0, px,py,0, px-BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT):play()
+        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 200 }, { px,py,0, px-2*BUTTON,py,0 }, Curve.QUADRATIC_IN_OUT)
         animation:getClip():addEndListener('animatePauseDone')
         animation:play()
         dimTime, dimming, screen.game.update = 0, true, updateDim
@@ -279,9 +278,9 @@ local function setPaused(paused)
         setButtonEnabled(menu, false)
         pause:getModel():setMaterial('res/button.material#pause')
         local x, y = reset:getTranslationX(), reset:getTranslationY()
-        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 200 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT):play()
+        reset:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 100 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT):play()
         x, y = menu:getTranslationX(), menu:getTranslationY()
-        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 400 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
+        local animation = menu:createAnimation('translate', Transform.ANIMATE_TRANSLATE(), 2, { 0, 200 }, { x,y,0, px,py,0 }, Curve.QUADRATIC_IN_OUT)
         animation:getClip():addEndListener('animatePlayDone')
         animation:play()
         dimTime, dimming, screen.game.update = 0, false, updateDim
