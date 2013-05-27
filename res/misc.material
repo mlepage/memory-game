@@ -46,6 +46,37 @@ material dim
     }
 }
 
+
+material dim-0 : dim
+{
+    u_modulateAlpha = 0.1
+}
+
+material dim-1 : dim
+{
+    u_modulateAlpha = 0.2
+}
+
+material dim-2 : dim
+{
+    u_modulateAlpha = 0.3
+}
+
+material dim-3 : dim
+{
+    u_modulateAlpha = 0.4
+}
+
+material dim-4 : dim
+{
+    u_modulateAlpha = 0.5
+}
+
+material dim-5 : dim
+{
+    u_modulateAlpha = 0.6
+}
+
 material base
 {
     u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX

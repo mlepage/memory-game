@@ -200,11 +200,8 @@ local function updateDim(elapsedTime)
     if not dimming then
         a = 1-a
     end
-    a = a/2
-    local effect = dim:getModel():getMaterial():getTechnique():getPassByIndex(0):getEffect()
-    local uniform = effect:getUniform('u_modulateAlpha')
-    print('dimming', a)
-    effect:setValue(uniform, a)
+    a = math.floor(a*5)
+    dim:getModel():setMaterial('res/misc.material#dim-' .. a)
 end
 
 local function cardHandler(card)
