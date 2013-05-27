@@ -32,7 +32,7 @@ material back : button
 {
     sampler u_diffuseTexture
     {
-        path = res/back.png
+        path = res/buttons/back.png
     }
 }
 
@@ -40,7 +40,7 @@ material pause : button
 {
     sampler u_diffuseTexture
     {
-        path = res/pause.png
+        path = res/buttons/pause.png
     }
 }
 
@@ -48,7 +48,7 @@ material play : button
 {
     sampler u_diffuseTexture
     {
-        path = res/play.png
+        path = res/buttons/play.png
     }
 }
 
@@ -56,7 +56,7 @@ material reset : button
 {
     sampler u_diffuseTexture
     {
-        path = res/reset.png
+        path = res/buttons/reset.png
     }
 }
 
@@ -64,7 +64,7 @@ material menu : button
 {
     sampler u_diffuseTexture
     {
-        path = res/menu.png
+        path = res/buttons/menu.png
     }
 }
 
@@ -72,7 +72,7 @@ material next : button
 {
     sampler u_diffuseTexture
     {
-        path = res/next.png
+        path = res/buttons/next.png
     }
 }
 
@@ -80,7 +80,7 @@ material level-1 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-1.png
+        path = res/levels/1.png
     }
 }
 
@@ -88,7 +88,7 @@ material level-2 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-2.png
+        path = res/levels/2.png
     }
 }
 
@@ -96,7 +96,7 @@ material level-3 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-3.png
+        path = res/levels/3.png
     }
 }
 
@@ -104,7 +104,7 @@ material level-4 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-4.png
+        path = res/levels/4.png
     }
 }
 
@@ -112,7 +112,7 @@ material level-5 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-5.png
+        path = res/levels/5.png
     }
 }
 
@@ -120,7 +120,7 @@ material level-6 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-6.png
+        path = res/levels/6.png
     }
 }
 
@@ -128,7 +128,7 @@ material level-7 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-7.png
+        path = res/levels/7.png
     }
 }
 
@@ -136,7 +136,7 @@ material level-8 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-8.png
+        path = res/levels/8.png
     }
 }
 
@@ -144,6 +144,6 @@ material level-9 : button
 {
     sampler u_diffuseTexture
     {
-        path = res/level-9.png
+        path = res/levels/9.png
     }
 }
