@@ -289,13 +289,6 @@ function render(elapsedTime)
     -- draw scene in reverse child order since children are added first
     local node = scene:getFirstNode()
     while node do
-        local next = node:getNextSibling()
-        if not next then
-            break
-        end
-        node = next
-    end
-    while node do
         drawNode(node)
         node = node:getNextSibling()
     end
