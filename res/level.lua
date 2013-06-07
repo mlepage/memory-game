@@ -5,6 +5,7 @@ screen.level = {}
 
 local root
 local player = {}
+local levels = {}
 
 function screen.level.load()
     screen.level.color = Vector4.one()
@@ -34,13 +35,14 @@ function screen.level.load()
             do
                 local level = l
                 local button = newButton(lsize, lsize,
-                    'res/button.material#level-' .. l,
+                    nil,
                     function(button)
                         game.level = level
                         gotoScreen('game')
                     end)
                 button:setTranslation(GW/2 + c*lspace, GH/2 + r*lspace, 0)
                 root:addChild(button)
+                levels[l] = button
             end
         end
     end
@@ -58,7 +60,21 @@ function screen.level.load()
     screen.level.root = root
 end
 
+function screen.level.loadinc()
+    local l = #levels
+    levels[l]:getModel():setMaterial('res/button.material#level-' .. l)
+    levels[l] = nil
+    if #levels == 0 then
+        levels = nil
+    end
+    return levels == nil
+end
+
 function screen.level.enter()
+    while levels do
+        screen.level.loadinc()
+    end
+
     if game.players == 1 then
         screen.level.blink(0, false)
         root:addChild(player[0])

@@ -323,25 +323,34 @@ function screen.game.load()
     player[2] = newQuad(-BUTTON, BUTTON)
     player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
 
-    for i = 1, 26 do
-        local letter = string.char(string.byte('a') + i - 1)
-        cards[i] = { newCard(letter), newCard(letter) }
-    end
-
-    -- set quaternions
-    local card = cards[1][1]
-    card:setRotation(0, 1, 0, 0)
-    card:rotate(Vector3.unitZ(), math.rad(12.25))
-    card:getRotation(q1)
-    card:setRotation(0, 1, 0, 0)
-    card:rotate(Vector3.unitZ(), math.rad(-12.25))
-    card:getRotation(q2)
-    card:setRotation(0, 0, 0, 1)
-
     screen.game.root = root
 end
 
+function screen.game.loadinc()
+    if #cards < 26 then
+        local i = #cards+1
+        local letter = string.char(string.byte('a') + i - 1)
+        cards[i] = { newCard(letter), newCard(letter) }
+        if i == 1 then
+            -- set quaternions
+            local card = cards[1][1]
+            card:setRotation(0, 1, 0, 0)
+            card:rotate(Vector3.unitZ(), math.rad(12.25))
+            card:getRotation(q1)
+            card:setRotation(0, 1, 0, 0)
+            card:rotate(Vector3.unitZ(), math.rad(-12.25))
+            card:getRotation(q2)
+            card:setRotation(0, 0, 0, 1)
+        end
+    end
+    return #cards == 26
+end
+
 function screen.game.enter()
+    while #cards < 26 do
+        screen.game.loadinc()
+    end
+
     local px, py
     if game.players == 1 then
         screen.game.blink(0, false)

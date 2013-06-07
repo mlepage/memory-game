@@ -37,6 +37,8 @@ local armedButton
 local buttonx, buttony
 local buttonHandlers = {}
 
+local levelScreenLoaded, gameScreenLoaded = false, false
+
 function newQuad(w, h, material, id)
     local node = Node.create(id)
 
@@ -235,6 +237,12 @@ function touchEvent(event, x, y, id)
 end
 
 function update(elapsedTime)
+    if not levelScreenLoaded then
+        levelScreenLoaded = screen.level.loadinc()
+    elseif not gameScreenLoaded then
+        gameScreenLoaded = screen.game.loadinc()
+    end
+
     for i = 0, 2 do
         blink[i].t = blink[i].t - elapsedTime/1000
         if blink[i].t <= 0 then
@@ -332,7 +340,7 @@ function initialize()
         blink[i].t = 2 + 8*math.random()
     end
 
-    loadScreen('title')
+    --loadScreen('title')
     loadScreen('level')
     loadScreen('game')
 
