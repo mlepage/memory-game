@@ -55,6 +55,7 @@ function screen.complete.load()
 end
 
 function screen.complete.enter()
+    root:addChild(score[1])
     if game.players == 1 then
         screen.complete.blink(0, false)
         root:addChild(player[0])
@@ -64,6 +65,7 @@ function screen.complete.enter()
     else
         screen.complete.blink(1, false)
         screen.complete.blink(2, false)
+        root:addChild(score[2])
         root:addChild(player[1])
         root:addChild(player[2])
         player[1]:setScale(1, 1, 1)
@@ -83,6 +85,8 @@ function screen.complete.enter()
 end
 
 function screen.complete.exit()
+    root:removeChild(score[1])
+    root:removeChild(score[2])
     root:removeChild(player[0])
     root:removeChild(player[1])
     root:removeChild(player[2])
