@@ -72,8 +72,13 @@ function screen.title.enter()
 end
 
 function screen.title.blink(id, b)
-    local mid = id == 2 and 1 or id
-    local mb = b and '-blink' or ''
-    local material = 'res/misc.material#player-' .. mid .. mb
-    player[id]:getModel():setMaterial(material)
+    local key = id .. tostring(b)
+    if materials[key] then
+        player[id]:getModel():setMaterial(materials[key])
+    else
+        local name = 'res/misc.material#player-' .. (id == 2 and 1 or id) .. (b and '-blink' or '')
+        player[id]:getModel():setMaterial(name)
+        materials[key] = player[id]:getModel():getMaterial()
+        materials[key]:addRef()
+    end
 end

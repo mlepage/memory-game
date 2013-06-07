@@ -21,6 +21,8 @@ score = { nil, nil } -- score nodes
 
 local blink = { [0]={ t=0, b=false }, { t=0, b=false }, { t=0, b=false } }
 
+materials = {}
+
 screen = {}
 local activeScreen
 local activeScreenName, nextScreenName
