@@ -236,12 +236,47 @@ function touchEvent(event, x, y, id)
     end
 end
 
+function drawSplash()
+    local game = Game.getInstance()
+    game:clear(Game.CLEAR_COLOR_DEPTH, 1, 1, 1, 1, 1, 0)
+    
+    local tw1, tw2, tw3, th = 306, 464, 520, 74
+    local x1, y1 = GW/2, GH/3
+    local x2, y2 = GW/2, GH/3
+    local x3, y3 = GW/2, GH*2/3
+    if ASPECT <= 1 then
+        y1 = y1 - th
+        y2 = y2 + th
+        y3 = GH*3/4
+    else
+        local w = tw1 + th + tw2
+        x1 = x1 - w/2 + tw1/2
+        x2 = x2 + w/2 - tw2/2
+    end
+
+    local batch
+    batch = SpriteBatch.create("res/title-1.png")
+    batch:start()
+    batch:draw(x1, y1, 0, tw1, th, 0, 1, 1, 0, Vector4.one(), true)
+    batch:finish()
+    batch = SpriteBatch.create("res/title-2.png")
+    batch:start()
+    batch:draw(x2, y2, 0, tw2, th, 0, 1, 1, 0, Vector4.one(), true)
+    batch:finish()
+    batch = SpriteBatch.create("res/title-3.png")
+    batch:start()
+    batch:draw(x3, y3, 0, tw3, th, 0, 1, 1, 0, Vector4.one(), true)
+    batch:finish()
+end
+
 function update(elapsedTime)
+    --[[
     if not levelScreenLoaded then
         levelScreenLoaded = screen.level.loadinc()
     elseif not gameScreenLoaded then
         gameScreenLoaded = screen.game.loadinc()
     end
+    --]]
 
     for i = 0, 2 do
         blink[i].t = blink[i].t - elapsedTime/1000
@@ -309,14 +344,16 @@ function render(elapsedTime)
 end
 
 function initialize()
-    math.randomseed(os.time())
-
-    scene = Scene.create()
-
     GW, GH = Game.getInstance():getWidth(), Game.getInstance():getHeight()
     GS, GL = math.min(GW, GH), math.max(GW, GH)
     ASPECT = GW/GH
     BUTTON = GS / 6
+
+    ScreenDisplayer.start("drawSplash", 1000)
+
+    math.randomseed(os.time())
+
+    scene = Scene.create()
 
     local camera = Camera.createOrthographic(1, 1, 1, 0, 1)
 
@@ -340,7 +377,6 @@ function initialize()
         blink[i].t = 2 + 8*math.random()
     end
 
-    --loadScreen('title')
     loadScreen('level')
     loadScreen('game')
 

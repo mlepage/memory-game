@@ -57,24 +57,26 @@ function screen.level.load()
     player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
     player[2]:setScale(-1, 1, 1)
 
+    while levels do
+        screen.level.loadinc()
+    end
+
     screen.level.root = root
 end
 
 function screen.level.loadinc()
-    local l = #levels
-    levels[l]:getModel():setMaterial('res/button.material#level-' .. l)
-    levels[l] = nil
-    if #levels == 0 then
-        levels = nil
+    if levels then
+        local l = #levels
+        levels[l]:getModel():setMaterial('res/button.material#level-' .. l)
+        levels[l] = nil
+        if #levels == 0 then
+            levels = nil
+        end
     end
     return levels == nil
 end
 
 function screen.level.enter()
-    while levels do
-        screen.level.loadinc()
-    end
-
     if game.players == 1 then
         screen.level.blink(0, false)
         root:addChild(player[0])

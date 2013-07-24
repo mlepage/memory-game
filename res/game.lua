@@ -323,6 +323,10 @@ function screen.game.load()
     player[2] = newQuad(-BUTTON, BUTTON)
     player[2]:setTranslation(GW - BUTTON/2, BUTTON/2, 0)
 
+    while #cards < 26 do
+        screen.game.loadinc()
+    end
+
     screen.game.root = root
 end
 
@@ -347,10 +351,6 @@ function screen.game.loadinc()
 end
 
 function screen.game.enter()
-    while #cards < 26 do
-        screen.game.loadinc()
-    end
-
     local px, py
     if game.players == 1 then
         screen.game.blink(0, false)
