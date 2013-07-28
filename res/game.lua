@@ -129,9 +129,11 @@ function animateCardFlipDone()
         if STATE == MATCH then
             animateCardMatch(card1)
             animateCardMatch(card2, true)
+            playSound(2)
         elseif STATE == NOMATCH then
             animateCardNoMatch(card1)
             animateCardNoMatch(card2, true)
+            playSound(3)
         end
     elseif STATE == IDLE then
         switchPlayer()

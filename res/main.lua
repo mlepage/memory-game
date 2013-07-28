@@ -39,6 +39,8 @@ local buttonHandlers = {}
 
 local levelScreenLoaded, gameScreenLoaded = false, false
 
+local sounds = {}
+
 function newQuad(w, h, material, id)
     local node = Node.create(id)
 
@@ -143,6 +145,16 @@ function loadScreen(name)
     end
 end
 
+local function loadSounds()
+    sounds[1] = AudioSource.create("res/sfx/click.wav");
+    sounds[2] = AudioSource.create("res/sfx/match.wav");
+    sounds[3] = AudioSource.create("res/sfx/nomatch.wav");
+end
+
+function playSound(index)
+    sounds[index]:play()
+end
+
 function visitArmButton(node)
     if node:hasTag('button') and not node:hasTag('disabled') then
         local w, h = tonumber(node:getTag('w')), tonumber(node:getTag('h'))
@@ -151,6 +163,7 @@ function visitArmButton(node)
             local sx, sy = node:getScaleX(), node:getScaleY()
             node:createAnimation('scale', Transform.ANIMATE_SCALE(), 2, { 0, 200 }, { sx,sy,1, 1.2,1.2,1 }, Curve.QUADRATIC_IN_OUT):play()
             armedButton = node
+            playSound(1)
         end
         return false
     end
@@ -376,6 +389,8 @@ function initialize()
     for i = 0, 2 do
         blink[i].t = 2 + 8*math.random()
     end
+
+    loadSounds()
 
     loadScreen('level')
     loadScreen('game')
