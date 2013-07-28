@@ -68,6 +68,7 @@ local function animateCardFlip(card, flip, addEndListener)
     if sx ~= 1.2 then
         card:createAnimation('scale', Transform.ANIMATE_SCALE(), 3, { 0, 200, 400 }, { sx,sy,1, 1.2,1.2,1, 1,1,1 }, Curve.QUADRATIC_IN_OUT):play()
     end
+    card:setTag('flip', flip and 'true' or nil)
     animation:play()
 end
 
@@ -145,8 +146,12 @@ end
 
 function animateCardNoMatchDone()
     if not PAUSED then
-        setButtonEnabled(card1, true)
-        setButtonEnabled(card2, true)
+        if game.players == 1 then
+            setCardsEnabled(true)
+        else
+            setButtonEnabled(card1, true)
+            setButtonEnabled(card2, true)
+        end
     end
 end
 
@@ -190,9 +195,12 @@ function animatePlayDone()
         setCardsEnabled(true)
         setButtonEnabled(card1, false)
     elseif STATE == NOMATCH then
-        setCardsEnabled(false)
-        setButtonEnabled(card1, true)
-        setButtonEnabled(card2, true)
+        if game.players == 1 then
+            setCardsEnabled(true)
+        else
+            setButtonEnabled(card1, true)
+            setButtonEnabled(card2, true)
+        end
     end
 end
 
@@ -222,11 +230,20 @@ local function cardHandler(card)
         animateCardFlip(card, true, true)
         STATE = FLIP2
     elseif STATE == NOMATCH then
+        local flipped = card:hasTag('flip')
         setButtonEnabled(card1, false)
         setButtonEnabled(card2, false)
         animateCardFlip(card1, false)
-        animateCardFlip(card2, false, true)
-        STATE = IDLE
+        if flipped then
+            animateCardFlip(card2, false, true)
+            STATE = IDLE
+        else
+            animateCardFlip(card2, false)
+            card1 = card
+            setCardsEnabled(false)
+            animateCardFlip(card, true, true)
+            STATE = FLIP1
+        end
     end
 end
 
