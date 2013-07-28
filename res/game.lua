@@ -7,6 +7,7 @@ screen.game = {}
 local IDLE, FLIP1, FLIP2, NOMATCH, MATCH = 1, 2, 3, 4, 5, 6
 local STATE = IDLE
 
+-- whether gameplay is paused
 local PAUSED = false
 
 -- game info
@@ -26,6 +27,10 @@ local cards = {} -- all pairs of cards
 -- flipped cards
 local card1, card2
 
+-- used for cloning new cards
+local protoCard, protoLetter
+
+-- dimming control
 local dimTime, dimming = 0, true
 
 -- quaternions
@@ -224,20 +229,32 @@ local function cardHandler(card)
 end
 
 local function newCard(letter)
-    local card = newButton(BUTTON, BUTTON, nil, cardHandler)
+    local card
 
-    local back = newQuad(256, 256, 'res/card.material#back')
-    card:addChild(back)
+    if protoCard then
+        card = protoCard:clone()
+    else
+        card = newButton(BUTTON, BUTTON, nil, cardHandler)
 
-    local front = newQuad(256, 256, 'res/card.material#front')
-    front:rotate(0, 1, 0, 0)
-    card:addChild(front)
+        local back = newQuad(256, 256, 'res/card.material#back')
+        card:addChild(back)
 
-    local decal = newQuad(192, 192, 'res/card.material#decal-' .. letter)
-    decal:rotate(0, 1, 0, 0)
-    card:addChild(decal)
+        local front = newQuad(256, 256, 'res/card.material#front')
+        front:rotate(0, 1, 0, 0)
+        card:addChild(front)
 
-    card:setTag('letter', letter)
+        local decal = newQuad(192, 192)
+        decal:rotate(0, 1, 0, 0)
+        card:addChild(decal)
+    end
+
+    -- First child is actually last (i.e. the decal)
+    if protoLetter ~= letter then
+        card:getFirstChild():getModel():setMaterial('res/card.material#decal-' .. letter)
+        card:setTag('letter', letter)
+    end
+
+    protoCard, protoLetter = card, letter
 
     return card
 end
