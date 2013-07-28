@@ -1,7 +1,7 @@
 -- Memory game
--- Copyright (C) 2013 Marc Lepage
-
--- http://en.wikipedia.org/wiki/Concentration_(game)
+-- Copyright 2013 Marc Lepage
+-- Licensed under the Apache License, Version 2.0
+-- http://www.apache.org/licenses/LICENSE-2.0
 
 GW, GH = 720, 720
 GS, GL = math.min(GW, GH), math.max(GW, GH)

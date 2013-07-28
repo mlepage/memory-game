@@ -1,5 +1,7 @@
 -- Memory game
--- Copyright (C) 2013 Marc Lepage
+-- Copyright 2013 Marc Lepage
+-- Licensed under the Apache License, Version 2.0
+-- http://www.apache.org/licenses/LICENSE-2.0
 
 screen.title = {}
 
