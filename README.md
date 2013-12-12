@@ -4,7 +4,7 @@ Alpha Memory Game
 [Alpha Memory][1] is a free open source memory game for one or two players by Marc Lepage, co-developer of [NeverMaze][2]. Children practice their alphabet by matching pairs of letters accompanied by fun animations and sounds.
 
 [1]: http://appworld.blackberry.com/webstore/content/29617896/
-[2]: http://appworld.blackberry.com/webstore/content/29783887/
+[2]: http://www.youtube.com/watch?v=sQsnZ_80VGo
 
 <img src="https://raw.github.com/mlepage/memory-game/1.0.1/assets/screenshot-game-1.png" width=640 height=360>
 
@@ -18,7 +18,7 @@ Overview
 Download
 --------
 
-You can download Alpha Memory for free at [BlackBerry World][4] for BlackBerry 10 devices and PlayBook.
+You can download Alpha Memory for FREE at [BlackBerry World][4] for BlackBerry 10 phones and PlayBook.
 
 [4]: http://appworld.blackberry.com/webstore/content/29617896/
 
@@ -58,6 +58,7 @@ The game is intentionally very simple. Here are some changes and enhancements yo
 By the Same Author
 ------------------
 
-[NeverMaze][9] is a touch maze game with dynamic difficulty, making it great for children while still challenging adults.
+NeverMaze is a touch maze game for all ages, featuring a variety of maze generation algorithms and dynamically adjusting difficulty. Available on [Google Play][9] for Android phones and tablets, and [BlackBerry World][10] for BlackBerry 10 phones and PlayBook tablets.
 
-[9]: http://appworld.blackberry.com/webstore/content/29783887/
+[9]: https://play.google.com/store/apps/details?id=com.krungie.sliderpuzzle
+[10]: http://appworld.blackberry.com/webstore/content/29783887/
